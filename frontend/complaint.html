@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>AI Complaint System</title>
+
+<link rel="stylesheet" href="css/complaint.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>
+<i class="fa-solid fa-robot"></i>
+AI Complaint Portal
+</h1>
+
+<div class="box">
+
+<label>Student Name</label>
+
+<input
+type="text"
+id="studentName"
+placeholder="Enter your name">
+
+<label>Registration Number</label>
+
+<input
+type="text"
+id="registrationNumber"
+placeholder="23BSA10025">
+
+<label>Complaint Title</label>
+
+<input
+type="text"
+id="title"
+placeholder="Ex: Fan not working">
+
+<label>Describe your problem</label>
+
+<textarea
+id="description"
+rows="7"
+placeholder="Explain your issue in detail..."></textarea>
+
+<button onclick="analyzeComplaint()">
+
+Analyze Using AI
+
+</button>
+
+</div>
+
+<div id="result" class="result">
+
+    <h2>🤖 AI Analysis</h2>
+
+    <p><strong>Department :</strong> <span id="department">-</span></p>
+
+    <p><strong>Priority :</strong> <span id="priority">-</span></p>
+
+    <p><strong>Status :</strong> <span id="status">Pending</span></p>
+
+    <p><strong>Reason :</strong> <span id="reason">-</span></p>
+
+    <button onclick="submitComplaint()">
+
+        Done
+
+    </button>
+
+</div>
+
+</div>
+
+<script src="js/complaint.js"></script>
+
+</body>
+
+</html>

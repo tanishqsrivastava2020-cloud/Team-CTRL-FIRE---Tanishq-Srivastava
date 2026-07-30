@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Hostel Dashboard</title>
+
+<link rel="stylesheet" href="css/hostel.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+</head>
+
+<body>
+
+<div class="sidebar">
+
+<h2>Hostel Admin</h2>
+
+<ul>
+
+<li><a href="#">Dashboard</a></li>
+
+<li><a href="#">AI Complaints</a></li>
+
+<li><a href="#">Outing Requests</a></li>
+
+<li><a href="#">Visitor Passes</a></li>
+
+<li><a href="#">Analytics</a></li>
+
+<li><a href="login.html">Logout</a></li>
+
+</ul>
+
+</div>
+
+<div class="main">
+
+<h1>Hostel Office Dashboard</h1>
+
+<div class="cards">
+
+<div class="card">
+
+<h3>Complaints</h3>
+
+<h2>18</h2>
+
+</div>
+
+<div class="card">
+
+<h3>Pending Outings</h3>
+
+<h2>4</h2>
+
+</div>
+
+<div class="card">
+
+<h3>Visitors Today</h3>
+
+<h2>11</h2>
+
+</div>
+
+<div class="card">
+
+<h3>Emergency Alerts</h3>
+
+<h2>1</h2>
+
+</div>
+
+</div>
+
+<h2>AI Complaint Queue</h2>
+
+<table>
+
+<tr>
+
+<th>Student</th>
+
+<th>Complaint</th>
+
+<th>AI Department</th>
+
+<th>Priority</th>
+
+<th>Status</th>
+
+</tr>
+
+<tr>
+
+<td>Tanishq</td>
+
+<td>Fan not working</td>
+
+<td>Electrical</td>
+
+<td style="color:red;">High</td>
+
+<td>
+
+<button onclick="assignComplaint(this)">
+
+Assign
+
+</button>
+
+</td>
+
+</tr>
+
+<tr>
+
+<td>Rahul</td>
+
+<td>Water Leakage</td>
+
+<td>Plumbing</td>
+
+<td style="color:orange;">Medium</td>
+
+<td>
+
+<button onclick="assignComplaint(this)">
+
+Assign
+
+</button>
+
+</td>
+
+</tr>
+
+</table>
+
+<br><br>
+
+<h2>Pending Outing Requests</h2>
+
+<table>
+
+<tr>
+
+<th>Student</th>
+
+<th>Faculty</th>
+
+<th>Parent</th>
+
+<th>Action</th>
+
+</tr>
+
+<tr>
+
+<td>Tanishq</td>
+
+<td style="color:#22c55e;">Approved</td>
+
+<td style="color:#22c55e;">Approved</td>
+
+<td>
+
+<button onclick="generatePass(this)">
+
+Generate QR Pass
+
+</button>
+
+</td>
+
+</tr>
+
+</table>
+
+<div id="message"></div>
+
+<div id="qrCard" class="qr-card">
+
+<h2>E-Outing Pass</h2>
+
+<img
+src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=HostelHubAI-Outing-Pass"
+alt="QR Code">
+
+<p><b>Student :</b> Tanishq Srivastava</p>
+
+<p><b>Room :</b> A-214</p>
+
+<p><b>Destination :</b> Bhopal City</p>
+
+<p><b>Status :</b> Approved</p>
+
+</div>
+
+</div>
+
+<script src="js/hostel.js"></script>
+
+</body>
+
+</html>
