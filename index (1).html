@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Real-Time Campus Management System - Complete</title>
+
+<link href="style.css" rel="stylesheet"/></head>
+<body>
+<div class="header">
+<h1>🎓 Real-Time Campus Management System</h1>
+<p>Live Updates • 5-Character QR Codes • Instant Sync Across All Portals</p>
+<div class="real-time-indicator">
+<div class="status-dot"></div>
+<span>Live</span>
+</div>
+</div>
+<!-- Toast Notification -->
+<div class="toast" id="toast">
+<span id="toastIcon">🔔</span>
+<div style="flex: 1;">
+<strong id="toastTitle">Notification</strong>
+<p id="toastMessage" style="margin: 0; font-size: 0.9rem; color: #e0e0e0;"></p>
+</div>
+</div>
+<!-- Change Password Modal -->
+<div class="modal" id="passwordModal">
+<div class="modal-content">
+<div class="modal-header">
+<h3>Change Password</h3>
+<button class="close-modal" onclick="closePasswordModal()">×</button>
+</div>
+<div class="form-group">
+<label>Current Password</label>
+<input id="currentPassword" type="password"/>
+</div>
+<div class="form-group">
+<label>New Password</label>
+<input id="newPassword" type="password"/>
+</div>
+<div class="form-group">
+<label>Confirm New Password</label>
+<input id="confirmPassword" type="password"/>
+</div>
+<button class="btn" onclick="changePassword()">Update Password</button>
+</div>
+</div>
+<div class="container">
+<!-- Role Selection -->
+<div class="role-selector" id="roleSelector">
+<h2>Select Your Role</h2>
+<div class="role-buttons">
+<button class="role-btn" id="adminRoleBtn" onclick="showPortal('admin')">
+<span class="role-icon">👨‍💼</span>
+                    Admin
+                </button>
+<button class="role-btn" id="studentRoleBtn" onclick="showPortal('student')">
+<span class="role-icon">👨‍🎓</span>
+                    Student
+                </button>
+<button class="role-btn" id="facultyRoleBtn" onclick="showPortal('faculty')">
+<span class="role-icon">👨‍🏫</span>
+                    Faculty
+                </button>
+<button class="role-btn" id="proctorRoleBtn" onclick="showPortal('proctor')">
+<span class="role-icon">👔</span>
+                    Proctor
+                </button>
+<button class="role-btn" id="parentRoleBtn" onclick="showPortal('parent')">
+<span class="role-icon">👨‍👩‍👧</span>
+                    Parent
+                </button>
+<button class="role-btn" id="hrRoleBtn" onclick="showPortal('hr')">
+<span class="role-icon">🏠</span>
+                    Hostel Rep
+                </button>
+</div>
+</div>
+<!-- Admin Portal -->
+<div class="portal" id="adminPortal">
+<div class="portal-header">
+<h2>Admin Portal</h2>
+<button class="logout-btn btn" onclick="logout()">Logout</button>
+</div>
+<div class="login-form" id="adminLogin">
+<h3 style="color: #e94560; margin-bottom: 1.5rem;">Admin Login</h3>
+<div class="form-group">
+<label>Username</label>
+<input id="adminUsername" type="text" value="admin"/>
+</div>
+<div class="form-group">
+<label>Password</label>
+<input id="adminPassword" type="password" value="admin123"/>
+</div>
+<button class="btn" onclick="adminLogin()">Login</button>
+</div>
+<div id="adminDashboard" style="display: none;">
+<div class="stats-grid">
+<div class="stat-card">
+<h3 id="adminTotalStudents">0</h3>
+<p>Total Students</p>
+</div>
+<div class="stat-card">
+<h3 id="adminTotalFaculty">0</h3>
+<p>Total Faculty</p>
+</div>
+<div class="stat-card">
+<h3 id="adminTotalProctors">0</h3>
+<p>Total Proctors</p>
+</div>
+<div class="stat-card">
+<h3 id="adminTotalParents">0</h3>
+<p>Total Parents</p>
+</div>
+</div>
+<div class="tabs">
+<button class="tab active" onclick="switchTab(event, 'admin', 'users')">Manage Users</button>
+<button class="tab" onclick="switchTab(event, 'admin', 'assignments')">Assignments</button>
+<button class="tab" onclick="switchTab(event, 'admin', 'profile')">My Profile</button>
+</div>
+<!-- Manage Users Tab -->
+<div class="tab-content active" id="admin-users">
+<div class="dashboard-grid">
+<!-- Add Student -->
+<div class="card">
+<h3>Add New Student</h3>
+<div class="form-group">
+<label>Name</label>
+<input id="newStudentName" type="text"/>
+</div>
+<div class="form-group">
+<label>Registration No</label>
+<input id="newStudentRegNo" type="text"/>
+</div>
+<div class="form-group">
+<label>Email</label>
+<input id="newStudentEmail" type="email"/>
+</div>
+<div class="form-group">
+<label>Room No</label>
+<input id="newStudentRoom" type="text"/>
+</div>
+<div class="form-group">
+<label>Password</label>
+<input id="newStudentPassword" type="text" value="student123"/>
+</div>
+<button class="btn" onclick="addStudent()">Add Student</button>
+</div>
+<!-- Add Faculty -->
+<div class="card">
+<h3>Add New Faculty</h3>
+<div class="form-group">
+<label>Name</label>
+<input id="newFacultyName" type="text"/>
+</div>
+<div class="form-group">
+<label>Email</label>
+<input id="newFacultyEmail" type="email"/>
+</div>
+<div class="form-group">
+<label>Subject</label>
+<input id="newFacultySubject" type="text"/>
+</div>
+<div class="form-group">
+<label>Password</label>
+<input id="newFacultyPassword" type="text" value="faculty123"/>
+</div>
+<button class="btn" onclick="addFaculty()">Add Faculty</button>
+</div>
+<!-- Add Proctor -->
+<div class="card">
+<h3>Add New Proctor</h3>
+<div class="form-group">
+<label>Name</label>
+<input id="newProctorName" type="text"/>
+</div>
+<div class="form-group">
+<label>Email</label>
+<input id="newProctorEmail" type="email"/>
+</div>
+<div class="form-group">
+<label>Password</label>
+<input id="newProctorPassword" type="text" value="proctor123"/>
+</div>
+<button class="btn" onclick="addProctor()">Add Proctor</button>
+</div>
+<!-- Add Parent -->
+<div class="card">
+<h3>Add New Parent</h3>
+<div class="form-group">
+<label>Student Reg No</label>
+<select id="newParentStudentRegNo"></select>
+</div>
+<div class="form-group">
+<label>Parent Email</label>
+<input id="newParentEmail" type="email"/>
+</div>
+<div class="form-group">
+<label>Mobile</label>
+<input id="newParentMobile" type="tel"/>
+</div>
+<div class="form-group">
+<label>Address</label>
+<textarea id="newParentAddress"></textarea>
+</div>
+<div class="form-group">
+<label>Password</label>
+<input id="newParentPassword" type="text" value="parent123"/>
+</div>
+<button class="btn" onclick="addParent()">Add Parent</button>
+</div>
+</div>
+<!-- Existing Users Management -->
+<div class="admin-section" style="margin-top: 2rem;">
+<h3 style="color: #e94560; margin-bottom: 1rem;">Manage Students</h3>
+<div id="adminStudentsList"></div>
+</div>
+<div class="admin-section">
+<h3 style="color: #e94560; margin-bottom: 1rem;">Manage Faculty</h3>
+<div id="adminFacultyList"></div>
+</div>
+<div class="admin-section">
+<h3 style="color: #e94560; margin-bottom: 1rem;">Manage Proctors</h3>
+<div id="adminProctorsList"></div>
+</div>
+</div>
+<!-- Assignments Tab -->
+<div class="tab-content" id="admin-assignments">
+<div class="card">
+<h3>Assign Proctor to Students</h3>
+<div class="form-group">
+<label>Select Student</label>
+<select id="assignStudentSelect"></select>
+</div>
+<div class="form-group">
+<label>Assign Proctor</label>
+<select id="assignProctorSelect"></select>
+</div>
+<button class="btn" onclick="assignProctor()">Assign Proctor</button>
+</div>
+<div class="card" style="margin-top: 1rem;">
+<h3>Current Assignments</h3>
+<div id="currentAssignmentsList"></div>
+</div>
+</div>
+<!-- My Profile Tab -->
+<div class="tab-content" id="admin-profile">
+<div class="card">
+<h3>Admin Profile</h3>
+<div class="info-box">
+<div class="info-row">
+<span class="info-label">Username:</span>
+<span class="info-value">admin</span>
+</div>
+<div class="info-row">
+<span class="info-label">Role:</span>
+<span class="info-value">System Administrator</span>
+</div>
+</div>
+<button class="btn" onclick="openPasswordModal()">Change Password</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Student Portal -->
+<div class="portal" id="studentPortal">
+<div class="portal-header">
+<h2>Student Portal - <span id="studentNameHeader"></span></h2>
+<button class="logout-btn btn" onclick="logout()">Logout</button>
+</div>
+<div class="login-form" id="studentLogin">
+<h3 style="color: #e94560; margin-bottom: 1.5rem;">Student Login</h3>
+<div class="form-group">
+<label>Select Student</label>
+<select id="studentSelect" style="margin-bottom: 1rem;">
+<option value="">-- Select Student --</option>
+</select>
+</div>
+<div class="form-group">
+<label>Password</label>
+<input id="studentPassword" type="password" value="student123"/>
+</div>
+<button class="btn" onclick="studentLogin()">Login</button>
+</div>
+<div id="studentDashboard" style="display: none;">
+<div class="stats-grid">
+<div class="stat-card">
+<h3 id="studentAttendancePercent">0%</h3>
+<p>Class Attendance</p>
+</div>
+<div class="stat-card">
+<h3 id="studentPendingAssignments">0</h3>
+<p>Pending Assignments</p>
+</div>
+<div class="stat-card">
+<h3 id="studentActiveIssues">0</h3>
+<p>Active Issues</p>
+</div>
+<div class="stat-card">
+<h3 id="studentLeaveStatus">-</h3>
+<p>Leave Status</p>
+</div>
+</div>
+<div class="tabs">
+<button class="tab active" onclick="switchTab(event, 'student', 'attendance')">Attendance</button>
+<button class="tab" id="studentLeavesTab" onclick="switchTab(event, 'student', 'leaves')">Leave Requests</button>
+<button class="tab" id="studentAssignmentsTab" onclick="switchTab(event, 'student', 'assignments')">Assignments</button>
+<button class="tab" id="studentHostelTab" onclick="switchTab(event, 'student', 'hostel')">Hostel Issues</button>
+<button class="tab" onclick="switchTab(event, 'student', 'profile')">My Details</button>
+</div>
+<!-- Attendance Tab -->
+<div class="tab-content active" id="student-attendance">
+<div class="dashboard-grid">
+<div class="card">
+<h3>Mark Attendance</h3>
+<div class="form-group">
+<label>5-Character Code</label>
+<input id="qrCodeInput" maxlength="5" placeholder="Enter 5-character code" style="text-transform: uppercase; font-size: 1.2rem; text-align: center; letter-spacing: 0.2rem;" type="text"/>
+</div>
+<button class="btn" onclick="markAttendance()">Mark Attendance</button>
+</div>
+<div class="card">
+<h3>Attendance History</h3>
+<div id="attendanceHistoryContainer"></div>
+</div>
+</div>
+</div>
+<!-- Leave Requests Tab -->
+<div class="tab-content" id="student-leaves">
+<div class="dashboard-grid">
+<div class="card">
+<h3>Apply for Leave</h3>
+<div class="form-group">
+<label>Leave Type</label>
+<select id="leaveType">
+<option>Medical Leave</option>
+<option>Personal Leave</option>
+<option>Emergency Leave</option>
+</select>
+</div>
+<div class="form-group">
+<label>From Date</label>
+<input id="leaveFrom" type="date"/>
+</div>
+<div class="form-group">
+<label>To Date</label>
+<input id="leaveTo" type="date"/>
+</div>
+<div class="form-group">
+<label>Reason</label>
+<textarea id="leaveReason" placeholder="Explain your reason for leave..."></textarea>
+</div>
+<button class="btn" onclick="submitLeave()">Submit Leave Request</button>
+</div>
+<div class="card">
+<h3>Leave History</h3>
+<ul class="request-list" id="studentLeaveHistory"></ul>
+</div>
+</div>
+</div>
+<!-- Assignments Tab -->
+<div class="tab-content" id="student-assignments">
+<div class="dashboard-grid">
+<div class="card">
+<h3>Upload Assignment</h3>
+<div class="form-group">
+<label>Select Assignment</label>
+<select id="assignmentSelectStudent">
+<option value="">-- Select Assignment --</option>
+</select>
+</div>
+<div class="form-group">
+<label>Assignment File</label>
+<input accept=".pdf,.doc,.docx,.txt" id="assignmentFileInput" type="file"/>
+</div>
+<button class="btn" onclick="uploadAssignment()">Upload Assignment</button>
+</div>
+<div class="card">
+<h3>My Submissions</h3>
+<div id="studentSubmissionsList"></div>
+</div>
+</div>
+<div class="card" style="margin-top: 1rem;">
+<h3>Available Assignments</h3>
+<div id="studentAvailableAssignments"></div>
+</div>
+</div>
+<!-- Hostel Issues Tab -->
+<div class="tab-content" id="student-hostel">
+<div class="dashboard-grid">
+<div class="card">
+<h3>Raise Hostel Issue</h3>
+<div class="form-group">
+<label>Issue Type</label>
+<select id="issueType">
+<option>Room Maintenance</option>
+<option>Electrical Issue</option>
+<option>Plumbing Issue</option>
+<option>Cleanliness</option>
+<option>Security Concern</option>
+<option>Other</option>
+</select>
+</div>
+<div class="form-group">
+<label>Description</label>
+<textarea id="issueDescription" placeholder="Describe the issue in detail..."></textarea>
+</div>
+<div class="form-group">
+<label>Priority</label>
+<select id="issuePriority">
+<option>Low</option>
+<option>Medium</option>
+<option>High</option>
+<option>Urgent</option>
+</select>
+</div>
+<button class="btn" onclick="submitHostelIssue()">Submit Issue</button>
+</div>
+<div class="card">
+<h3>My Issues</h3>
+<ul class="request-list" id="studentHostelIssues"></ul>
+</div>
+</div>
+</div>
+<!-- My Details Tab -->
+<div class="tab-content" id="student-profile">
+<div class="card">
+<h3>My Information</h3>
+<div id="studentProfileInfo"></div>
+<button class="btn" onclick="openPasswordModal()" style="margin-top: 1rem;">Change Password</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Faculty Portal -->
+<div class="portal" id="facultyPortal">
+<div class="portal-header">
+<h2>Faculty Portal - <span id="facultyNameHeader"></span></h2>
+<button class="logout-btn btn" onclick="logout()">Logout</button>
+</div>
+<div class="login-form" id="facultyLogin">
+<h3 style="color: #e94560; margin-bottom: 1.5rem;">Faculty Login</h3>
+<div class="form-group">
+<label>Select Faculty</label>
+<select id="facultySelect">
+<option value="">-- Select Faculty --</option>
+</select>
+</div>
+<div class="form-group">
+<label>Password</label>
+<input id="facultyPassword" type="password" value="faculty123"/>
+</div>
+<button class="btn" onclick="facultyLogin()">Login</button>
+</div>
+<div id="facultyDashboard" style="display: none;">
+<div class="stats-grid">
+<div class="stat-card">
+<h3 id="facultyTodayAttendance">0</h3>
+<p>Students Present Today</p>
+</div>
+<div class="stat-card">
+<h3 id="facultyPendingAssignments">0</h3>
+<p>Submissions to Review</p>
+</div>
+<div class="stat-card">
+<h3 id="facultyActiveQR">Inactive</h3>
+<p>QR Status</p>
+</div>
+<div class="stat-card">
+<h3 id="facultyMyStudents">0</h3>
+<p>My Students</p>
+</div>
+</div>
+<div class="tabs">
+<button class="tab active" onclick="switchTab(event, 'faculty', 'attendance')">Attendance</button>
+<button class="tab" id="facultyAssignmentsTab" onclick="switchTab(event, 'faculty', 'assignments')">Create Assignment</button>
+<button class="tab" id="facultySubmissionsTab" onclick="switchTab(event, 'faculty', 'submissions')">Review Submissions</button>
+<button class="tab" onclick="switchTab(event, 'faculty', 'profile')">My Profile</button>
+</div>
+<!-- Attendance Tab -->
+<div class="tab-content active" id="faculty-attendance">
+<div class="dashboard-grid">
+<div class="card">
+<h3>Generate Attendance Code</h3>
+<div class="form-group">
+<label>Select Subject</label>
+<select id="qrSubject">
+<option>Mathematics</option>
+<option>Physics</option>
+<option>Chemistry</option>
+<option>Computer Science</option>
+<option>English</option>
+</select>
+</div>
+<div class="form-group">
+<label>Select Slot</label>
+<select id="qrSlot">
+<option>9:00 AM - 10:00 AM</option>
+<option>10:00 AM - 11:00 AM</option>
+<option>11:00 AM - 12:00 PM</option>
+<option>2:00 PM - 3:00 PM</option>
+<option>3:00 PM - 4:00 PM</option>
+</select>
+</div>
+<button class="btn" onclick="generateQR()">Generate Code</button>
+<div id="qrDisplay" style="display: none; margin-top: 1rem;">
+<div class="qr-code">
+<p style="margin: 0; color: #b0b0b0; font-size: 0.9rem;">Attendance Code</p>
+<div class="qr-code-text" id="qrCodeDisplay">XXXXX</div>
+<p style="margin: 0; color: #b0b0b0; font-size: 0.85rem;">Students enter this code</p>
+</div>
+<div class="timer">Auto-refresh in: <span id="qrTimer">10</span>s</div>
+</div>
+</div>
+<div class="card">
+<h3>Today's Attendance</h3>
+<div id="todayAttendance">
+<p><strong>Subject:</strong> <span id="currentSubject">-</span></p>
+<p><strong>Slot:</strong> <span id="currentSlot">-</span></p>
+<p><strong>Students Present:</strong> <span id="presentCount">0</span></p>
+<div id="attendanceStudentsList"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Create Assignment Tab -->
+<div class="tab-content" id="faculty-assignments">
+<div class="card">
+<h3>Create New Assignment</h3>
+<div class="form-group">
+<label>Select Subject</label>
+<select id="assignSubject">
+<option>Mathematics</option>
+<option>Physics</option>
+<option>Chemistry</option>
+<option>Computer Science</option>
+<option>English</option>
+</select>
+</div>
+<div class="form-group">
+<label>Assignment Title</label>
+<input id="assignTitle" placeholder="e.g., Calculus Chapter 5 Problems" type="text"/>
+</div>
+<div class="form-group">
+<label>Description</label>
+<textarea id="assignDescription" placeholder="Detailed instructions for the assignment..."></textarea>
+</div>
+<div class="form-group">
+<label>Due Date</label>
+<input id="assignDueDate" type="date"/>
+</div>
+<button class="btn" onclick="createAssignment()">Create Assignment</button>
+</div>
+<div class="card" style="margin-top: 1rem;">
+<h3>My Active Assignments</h3>
+<div id="facultyActiveAssignmentsList"></div>
+</div>
+</div>
+<!-- Review Submissions Tab -->
+<div class="tab-content" id="faculty-submissions">
+<div class="card">
+<h3>Assignment Submissions</h3>
+<div id="facultySubmissionsList"></div>
+</div>
+</div>
+<!-- My Profile Tab -->
+<div class="tab-content" id="faculty-profile">
+<div class="card">
+<h3>Faculty Profile</h3>
+<div id="facultyProfileInfo"></div>
+<button class="btn" onclick="openPasswordModal()" style="margin-top: 1rem;">Change Password</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Proctor Portal -->
+<div class="portal" id="proctorPortal">
+<div class="portal-header">
+<h2>Proctor Portal - <span id="proctorNameHeader"></span></h2>
+<button class="logout-btn btn" onclick="logout()">Logout</button>
+</div>
+<div class="login-form" id="proctorLogin">
+<h3 style="color: #e94560; margin-bottom: 1.5rem;">Proctor Login</h3>
+<div class="form-group">
+<label>Select Proctor</label>
+<select id="proctorSelect">
+<option value="">-- Select Proctor --</option>
+</select>
+</div>
+<div class="form-group">
+<label>Password</label>
+<input id="proctorPassword" type="password" value="proctor123"/>
+</div>
+<button class="btn" onclick="proctorLogin()">Login</button>
+</div>
+<div id="proctorDashboard" style="display: none;">
+<div class="stats-grid">
+<div class="stat-card">
+<h3 id="proctorStudentsCount">0</h3>
+<p>My Students</p>
+</div>
+<div class="stat-card">
+<h3 id="proctorPendingLeaves">0</h3>
+<p>Pending Leaves</p>
+</div>
+<div class="stat-card">
+<h3 id="proctorApprovedLeaves">0</h3>
+<p>Approved Leaves</p>
+</div>
+<div class="stat-card">
+<h3 id="proctorRejectedLeaves">0</h3>
+<p>Rejected Leaves</p>
+</div>
+</div>
+<div class="tabs">
+<button class="tab active" id="proctorLeavesTab" onclick="switchTab(event, 'proctor', 'leaves')">Leave Requests</button>
+<button class="tab" onclick="switchTab(event, 'proctor', 'students')">My Students</button>
+<button class="tab" onclick="switchTab(event, 'proctor', 'manage')">Manage Credentials</button>
+<button class="tab" onclick="switchTab(event, 'proctor', 'profile')">My Profile</button>
+</div>
+<!-- Leave Requests Tab -->
+<div class="tab-content active" id="proctor-leaves">
+<div class="card">
+<h3>Pending Leave Requests</h3>
+<ul class="request-list" id="proctorPendingLeavesList"></ul>
+</div>
+<div class="card" style="margin-top: 1rem;">
+<h3>Leave History</h3>
+<div id="proctorLeaveHistoryList"></div>
+</div>
+</div>
+<!-- My Students Tab -->
+<div class="tab-content" id="proctor-students">
+<div class="card">
+<h3>My Assigned Students</h3>
+<div id="proctorStudentsList"></div>
+</div>
+</div>
+<!-- Manage Credentials Tab -->
+<div class="tab-content" id="proctor-manage">
+<div class="card">
+<h3>Reset Student Password</h3>
+<div class="form-group">
+<label>Select Student</label>
+<select id="proctorStudentSelect"></select>
+</div>
+<div class="form-group">
+<label>New Password</label>
+<input id="proctorNewStudentPassword" type="text"/>
+</div>
+<button class="btn" onclick="resetStudentPassword()">Reset Password</button>
+</div>
+</div>
+<!-- My Profile Tab -->
+<div class="tab-content" id="proctor-profile">
+<div class="card">
+<h3>Proctor Profile</h3>
+<div id="proctorProfileInfo"></div>
+<button class="btn" onclick="openPasswordModal()" style="margin-top: 1rem;">Change Password</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Parent Portal -->
+<div class="portal" id="parentPortal">
+<div class="portal-header">
+<h2>Parent Portal - <span id="parentStudentHeader"></span></h2>
+<button class="logout-btn btn" onclick="logout()">Logout</button>
+</div>
+<div class="login-form" id="parentLogin">
+<h3 style="color: #e94560; margin-bottom: 1.5rem;">Parent Login</h3>
+<div class="form-group">
+<label>Select Parent</label>
+<select id="parentSelect">
+<option value="">-- Select Parent Account --</option>
+</select>
+</div>
+<div class="form-group">
+<label>Password</label>
+<input id="parentPassword" type="password" value="parent123"/>
+</div>
+<button class="btn" onclick="parentLogin()">Login</button>
+</div>
+<div id="parentDashboard" style="display: none;">
+<div class="stats-grid">
+<div class="stat-card">
+<h3 id="parentAttendancePercent">0%</h3>
+<p>Attendance</p>
+</div>
+<div class="stat-card">
+<h3 id="parentAssignmentsCount">0/0</h3>
+<p>Assignments</p>
+</div>
+<div class="stat-card">
+<h3 id="parentPendingLeaves">0</h3>
+<p>Pending Approvals</p>
+</div>
+<div class="stat-card">
+<h3 id="parentHostelIssues">0</h3>
+<p>Hostel Issues</p>
+</div>
+</div>
+<div class="tabs">
+<button class="tab active" onclick="switchTab(event, 'parent', 'overview')">Overview</button>
+<button class="tab" id="parentLeavesTab" onclick="switchTab(event, 'parent', 'leaves')">Leave Approvals</button>
+<button class="tab" onclick="switchTab(event, 'parent', 'assignments')">Assignments</button>
+<button class="tab" onclick="switchTab(event, 'parent', 'hostel')">Hostel</button>
+<button class="tab" onclick="switchTab(event, 'parent', 'profile')">My Profile</button>
+</div>
+<!-- Overview Tab -->
+<div class="tab-content active" id="parent-overview">
+<div class="card">
+<h3>Recent Activities</h3>
+<div id="parentRecentActivities"></div>
+</div>
+</div>
+<!-- Leave Approvals Tab -->
+<div class="tab-content" id="parent-leaves">
+<div class="card">
+<h3>Pending Leave Approvals</h3>
+<ul class="request-list" id="parentPendingLeavesList"></ul>
+</div>
+<div class="card" style="margin-top: 1rem;">
+<h3>Leave History</h3>
+<div id="parentLeaveHistoryList"></div>
+</div>
+</div>
+<!-- Assignments Tab -->
+<div class="tab-content" id="parent-assignments">
+<div class="card">
+<h3>Assignment Tracking</h3>
+<div id="parentAssignmentsList"></div>
+</div>
+</div>
+<!-- Hostel Tab -->
+<div class="tab-content" id="parent-hostel">
+<div class="card">
+<h3>Hostel Issues</h3>
+<div id="parentHostelIssuesList"></div>
+</div>
+</div>
+<!-- My Profile Tab -->
+<div class="tab-content" id="parent-profile">
+<div class="card">
+<h3>Parent Profile</h3>
+<div id="parentProfileInfo"></div>
+<button class="btn" onclick="openPasswordModal()" style="margin-top: 1rem;">Change Password</button>
+</div>
+</div>
+</div>
+</div>
+<!-- HR Portal -->
+<div class="portal" id="hrPortal">
+<div class="portal-header">
+<h2>Hostel Representative Portal</h2>
+<button class="logout-btn btn" onclick="logout()">Logout</button>
+</div>
+<div class="login-form" id="hrLogin">
+<h3 style="color: #e94560; margin-bottom: 1.5rem;">HR Login</h3>
+<div class="form-group">
+<label>Email</label>
+<input id="hrEmail" type="email" value="hr@college.edu"/>
+</div>
+<div class="form-group">
+<label>Password</label>
+<input id="hrPassword" type="password" value="hr123"/>
+</div>
+<button class="btn" onclick="hrLogin()">Login</button>
+</div>
+<div id="hrDashboard" style="display: none;">
+<div class="stats-grid">
+<div class="stat-card">
+<h3 id="hrTotalStudents">0</h3>
+<p>Total Students</p>
+</div>
+<div class="stat-card">
+<h3 id="hrPendingIssues">0</h3>
+<p>Pending Issues</p>
+</div>
+<div class="stat-card">
+<h3 id="hrResolvedIssues">0</h3>
+<p>Resolved Issues</p>
+</div>
+</div>
+<div class="tabs">
+<button class="tab active" id="hrIssuesTab" onclick="switchTab(event, 'hr', 'issues')">Hostel Issues</button>
+<button class="tab" onclick="switchTab(event, 'hr', 'students')">Student Directory</button>
+<button class="tab" onclick="switchTab(event, 'hr', 'profile')">My Profile</button>
+</div>
+<!-- Issues Tab -->
+<div class="tab-content active" id="hr-issues">
+<div class="card">
+<h3>Pending Issues</h3>
+<ul class="request-list" id="hrPendingIssuesList"></ul>
+</div>
+<div class="card" style="margin-top: 1rem;">
+<h3>Resolved Issues</h3>
+<div id="hrResolvedIssuesList"></div>
+</div>
+</div>
+<!-- Students Tab -->
+<div class="tab-content" id="hr-students">
+<div class="card">
+<h3>Student Directory</h3>
+<div id="hrStudentDirectory"></div>
+</div>
+</div>
+<!-- My Profile Tab -->
+<div class="tab-content" id="hr-profile">
+<div class="card">
+<h3>HR Profile</h3>
+<div id="hrProfileInfo"></div>
+<button class="btn" onclick="openPasswordModal()" style="margin-top: 1rem;">Change Password</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<script src="script.js"></script></body>
+</html>
+<!--fix admin portal admin where he can change credential of otherportal and assign facullty to there subject and slots , can assign student to there proctor , admin can add new student ,proctor,faculty,parants , and can generate there credential .-->
