@@ -1,0 +1,3728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Campus Management System - Complete</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.5);
+            position: relative;
+            border-bottom: 3px solid #e94560;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            color: #e94560;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+
+        .real-time-indicator {
+            position: absolute;
+            top: 1.5rem;
+            right: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(233, 69, 96, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            border: 1px solid #e94560;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #4ade80;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #e94560;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            animation: bounce 0.5s;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .role-selector {
+            background: #0f3460;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            border: 1px solid #16213e;
+        }
+
+        .role-selector h2 {
+            color: #e94560;
+            margin-bottom: 1.5rem;
+        }
+
+        .role-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+
+        .role-btn {
+            background: linear-gradient(135deg, #16213e 0%, #0f3460 100%);
+            color: white;
+            border: 2px solid #e94560;
+            padding: 2rem 1.5rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            position: relative;
+            text-align: center;
+        }
+
+        .role-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(233, 69, 96, 0.4);
+            background: linear-gradient(135deg, #e94560 0%, #0f3460 100%);
+        }
+
+        .role-btn.active {
+            background: linear-gradient(135deg, #e94560 0%, #16213e 100%);
+            box-shadow: 0 10px 30px rgba(233, 69, 96, 0.6);
+        }
+
+        .role-icon {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .portal {
+            display: none;
+            background: #0f3460;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            border: 1px solid #16213e;
+        }
+
+        .portal.active {
+            display: block;
+        }
+
+        .portal-header {
+            border-bottom: 2px solid #e94560;
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .portal-header h2 {
+            color: #e94560;
+            font-size: 1.8rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: #16213e;
+            border-radius: 8px;
+            padding: 1.5rem;
+            border-left: 4px solid #e94560;
+            position: relative;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .card.new-update {
+            animation: highlightCard 1s;
+        }
+
+        @keyframes highlightCard {
+            0%, 100% { background: #16213e; }
+            50% { background: #1a2332; }
+        }
+
+        .card h3 {
+            color: #e94560;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #b0b0b0;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #1a1a2e;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            background: #1a1a2e;
+            color: #e0e0e0;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #e94560;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #e94560 0%, #0f3460 100%);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(233, 69, 96, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #4ade80 0%, #16a34a 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #1a1a2e;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 1rem 1.5rem;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            color: #b0b0b0;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .tab.active {
+            color: #e94560;
+            border-bottom-color: #e94560;
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .qr-code {
+            width: 250px;
+            height: 250px;
+            background: #1a1a2e;
+            border: 3px solid #e94560;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 1rem auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(233, 69, 96, 0.3);
+        }
+
+        .qr-code-text {
+            font-size: 3rem;
+            font-weight: bold;
+            letter-spacing: 0.2rem;
+            color: #e94560;
+            font-family: 'Courier New', monospace;
+        }
+
+        .attendance-status {
+            display: inline-block;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .status-present {
+            background: rgba(74, 222, 128, 0.2);
+            color: #4ade80;
+            border: 1px solid #4ade80;
+        }
+
+        .status-absent {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid #ef4444;
+        }
+
+        .request-list {
+            list-style: none;
+        }
+
+        .request-item {
+            background: #16213e;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 6px;
+            border-left: 4px solid #e94560;
+            position: relative;
+        }
+
+        .request-item.new {
+            animation: slideIn 0.5s;
+            border-left-color: #fbbf24;
+            background: rgba(251, 191, 36, 0.1);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .request-item h4 {
+            margin-bottom: 0.5rem;
+            color: #e0e0e0;
+        }
+
+        .request-item p {
+            color: #b0b0b0;
+            margin-bottom: 0.5rem;
+        }
+
+        .request-actions {
+            margin-top: 1rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .badge-pending {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+            border: 1px solid #fbbf24;
+        }
+
+        .badge-approved {
+            background: rgba(74, 222, 128, 0.2);
+            color: #4ade80;
+            border: 1px solid #4ade80;
+        }
+
+        .badge-rejected {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid #ef4444;
+        }
+
+        .badge-new {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+            animation: pulse 2s infinite;
+        }
+
+        .login-form {
+            max-width: 400px;
+            margin: 2rem auto;
+            background: #16213e;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .timer {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #e94560;
+            font-weight: 600;
+            margin: 1rem 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #1a1a2e;
+        }
+
+        th {
+            background: #1a1a2e;
+            font-weight: 600;
+            color: #e94560;
+        }
+
+        tr:hover {
+            background: rgba(233, 69, 96, 0.05);
+        }
+
+        .logout-btn {
+            float: right;
+            background: #1a1a2e;
+            color: #e94560;
+            padding: 0.6rem 1.2rem;
+            border: 1px solid #e94560;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #e94560 0%, #0f3460 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.3);
+        }
+
+        .stat-card h3 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+
+        .stat-card p {
+            opacity: 0.9;
+        }
+
+        .toast {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: #16213e;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            gap: 1rem;
+            z-index: 1000;
+            animation: slideInRight 0.3s;
+            min-width: 300px;
+            border: 1px solid #e94560;
+        }
+
+        .toast.show {
+            display: flex;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+            }
+            to {
+                transform: translateX(0);
+            }
+        }
+
+        .toast-success {
+            border-left: 4px solid #4ade80;
+        }
+
+        .toast-error {
+            border-left: 4px solid #ef4444;
+        }
+
+        .toast-info {
+            border-left: 4px solid #3b82f6;
+        }
+
+        .toast-warning {
+            border-left: 4px solid #fbbf24;
+        }
+
+        .timestamp {
+            font-size: 0.75rem;
+            color: #888;
+            margin-top: 0.25rem;
+        }
+
+        .file-info {
+            background: rgba(233, 69, 96, 0.1);
+            padding: 0.8rem;
+            border-radius: 6px;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 1px solid rgba(233, 69, 96, 0.3);
+        }
+
+        .info-box {
+            background: #16213e;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border: 1px solid #1a1a2e;
+        }
+
+        .info-box h4 {
+            color: #e94560;
+            margin-bottom: 1rem;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #1a1a2e;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: #b0b0b0;
+            font-weight: 500;
+        }
+
+        .info-value {
+            color: #e0e0e0;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #0f3460;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            border: 2px solid #e94560;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h3 {
+            color: #e94560;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: #e94560;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .role-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .real-time-indicator {
+                position: static;
+                margin-top: 1rem;
+            }
+
+            .toast {
+                right: 10px;
+                left: 10px;
+                min-width: auto;
+            }
+        }
+
+        .admin-section {
+            margin-bottom: 2rem;
+        }
+
+        .user-card {
+            background: #16213e;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-left: 4px solid #e94560;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-info h4 {
+            color: #e0e0e0;
+            margin-bottom: 0.5rem;
+        }
+
+        .user-info p {
+            color: #b0b0b0;
+            font-size: 0.9rem;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎓 Real-Time Campus Management System</h1>
+        <p>Live Updates • 5-Character QR Codes • Instant Sync Across All Portals</p>
+        <div class="real-time-indicator">
+            <div class="status-dot"></div>
+            <span>Live</span>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <span id="toastIcon">🔔</span>
+        <div style="flex: 1;">
+            <strong id="toastTitle">Notification</strong>
+            <p id="toastMessage" style="margin: 0; font-size: 0.9rem; color: #e0e0e0;"></p>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div id="passwordModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Change Password</h3>
+                <button class="close-modal" onclick="closePasswordModal()">×</button>
+            </div>
+            <div class="form-group">
+                <label>Current Password</label>
+                <input type="password" id="currentPassword">
+            </div>
+            <div class="form-group">
+                <label>New Password</label>
+                <input type="password" id="newPassword">
+            </div>
+            <div class="form-group">
+                <label>Confirm New Password</label>
+                <input type="password" id="confirmPassword">
+            </div>
+            <button class="btn" onclick="changePassword()">Update Password</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Role Selection -->
+        <div class="role-selector" id="roleSelector">
+            <h2>Select Your Role</h2>
+            <div class="role-buttons">
+                <button class="role-btn" onclick="showPortal('admin')" id="adminRoleBtn">
+                    <span class="role-icon">👨‍💼</span>
+                    Admin
+                </button>
+                <button class="role-btn" onclick="showPortal('student')" id="studentRoleBtn">
+                    <span class="role-icon">👨‍🎓</span>
+                    Student
+                </button>
+                <button class="role-btn" onclick="showPortal('faculty')" id="facultyRoleBtn">
+                    <span class="role-icon">👨‍🏫</span>
+                    Faculty
+                </button>
+                <button class="role-btn" onclick="showPortal('proctor')" id="proctorRoleBtn">
+                    <span class="role-icon">👔</span>
+                    Proctor
+                </button>
+                <button class="role-btn" onclick="showPortal('parent')" id="parentRoleBtn">
+                    <span class="role-icon">👨‍👩‍👧</span>
+                    Parent
+                </button>
+                <button class="role-btn" onclick="showPortal('hr')" id="hrRoleBtn">
+                    <span class="role-icon">🏠</span>
+                    Hostel Rep
+                </button>
+            </div>
+        </div>
+
+        <!-- Admin Portal -->
+        <div id="adminPortal" class="portal">
+            <div class="portal-header">
+                <h2>Admin Portal</h2>
+                <button class="logout-btn btn" onclick="logout()">Logout</button>
+            </div>
+
+            <div id="adminLogin" class="login-form">
+                <h3 style="color: #e94560; margin-bottom: 1.5rem;">Admin Login</h3>
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="adminUsername" value="admin">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="adminPassword" value="admin123">
+                </div>
+                <button class="btn" onclick="adminLogin()">Login</button>
+            </div>
+
+            <div id="adminDashboard" style="display: none;">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3 id="adminTotalStudents">0</h3>
+                        <p>Total Students</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="adminTotalFaculty">0</h3>
+                        <p>Total Faculty</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="adminTotalProctors">0</h3>
+                        <p>Total Proctors</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="adminTotalParents">0</h3>
+                        <p>Total Parents</p>
+                    </div>
+                </div>
+
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event, 'admin', 'users')">Manage Users</button>
+                    <button class="tab" onclick="switchTab(event, 'admin', 'assignments')">Assignments</button>
+                    <button class="tab" onclick="switchTab(event, 'admin', 'profile')">My Profile</button>
+                </div>
+
+                <!-- Manage Users Tab -->
+                <div id="admin-users" class="tab-content active">
+                    <div class="dashboard-grid">
+                        <!-- Add Student -->
+                        <div class="card">
+                            <h3>Add New Student</h3>
+                            <div class="form-group">
+                                <label>Name</label>
+                                <input type="text" id="newStudentName">
+                            </div>
+                            <div class="form-group">
+                                <label>Registration No</label>
+                                <input type="text" id="newStudentRegNo">
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" id="newStudentEmail">
+                            </div>
+                            <div class="form-group">
+                                <label>Room No</label>
+                                <input type="text" id="newStudentRoom">
+                            </div>
+                            <div class="form-group">
+                                <label>Password</label>
+                                <input type="text" id="newStudentPassword" value="student123">
+                            </div>
+                            <button class="btn" onclick="addStudent()">Add Student</button>
+                        </div>
+
+                        <!-- Add Faculty -->
+                        <div class="card">
+                            <h3>Add New Faculty</h3>
+                            <div class="form-group">
+                                <label>Name</label>
+                                <input type="text" id="newFacultyName">
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" id="newFacultyEmail">
+                            </div>
+                            <div class="form-group">
+                                <label>Subject</label>
+                                <input type="text" id="newFacultySubject">
+                            </div>
+                            <div class="form-group">
+                                <label>Password</label>
+                                <input type="text" id="newFacultyPassword" value="faculty123">
+                            </div>
+                            <button class="btn" onclick="addFaculty()">Add Faculty</button>
+                        </div>
+
+                        <!-- Add Proctor -->
+                        <div class="card">
+                            <h3>Add New Proctor</h3>
+                            <div class="form-group">
+                                <label>Name</label>
+                                <input type="text" id="newProctorName">
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" id="newProctorEmail">
+                            </div>
+                            <div class="form-group">
+                                <label>Password</label>
+                                <input type="text" id="newProctorPassword" value="proctor123">
+                            </div>
+                            <button class="btn" onclick="addProctor()">Add Proctor</button>
+                        </div>
+
+                        <!-- Add Parent -->
+                        <div class="card">
+                            <h3>Add New Parent</h3>
+                            <div class="form-group">
+                                <label>Student Reg No</label>
+                                <select id="newParentStudentRegNo"></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Parent Email</label>
+                                <input type="email" id="newParentEmail">
+                            </div>
+                            <div class="form-group">
+                                <label>Mobile</label>
+                                <input type="tel" id="newParentMobile">
+                            </div>
+                            <div class="form-group">
+                                <label>Address</label>
+                                <textarea id="newParentAddress"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Password</label>
+                                <input type="text" id="newParentPassword" value="parent123">
+                            </div>
+                            <button class="btn" onclick="addParent()">Add Parent</button>
+                        </div>
+                    </div>
+
+                    <!-- Existing Users Management -->
+                    <div class="admin-section" style="margin-top: 2rem;">
+                        <h3 style="color: #e94560; margin-bottom: 1rem;">Manage Students</h3>
+                        <div id="adminStudentsList"></div>
+                    </div>
+
+                    <div class="admin-section">
+                        <h3 style="color: #e94560; margin-bottom: 1rem;">Manage Faculty</h3>
+                        <div id="adminFacultyList"></div>
+                    </div>
+
+                    <div class="admin-section">
+                        <h3 style="color: #e94560; margin-bottom: 1rem;">Manage Proctors</h3>
+                        <div id="adminProctorsList"></div>
+                    </div>
+                </div>
+
+                <!-- Assignments Tab -->
+                <div id="admin-assignments" class="tab-content">
+                    <div class="card">
+                        <h3>Assign Proctor to Students</h3>
+                        <div class="form-group">
+                            <label>Select Student</label>
+                            <select id="assignStudentSelect"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Assign Proctor</label>
+                            <select id="assignProctorSelect"></select>
+                        </div>
+                        <button class="btn" onclick="assignProctor()">Assign Proctor</button>
+                    </div>
+
+                    <div class="card" style="margin-top: 1rem;">
+                        <h3>Current Assignments</h3>
+                        <div id="currentAssignmentsList"></div>
+                    </div>
+                </div>
+
+                <!-- My Profile Tab -->
+                <div id="admin-profile" class="tab-content">
+                    <div class="card">
+                        <h3>Admin Profile</h3>
+                        <div class="info-box">
+                            <div class="info-row">
+                                <span class="info-label">Username:</span>
+                                <span class="info-value">admin</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Role:</span>
+                                <span class="info-value">System Administrator</span>
+                            </div>
+                        </div>
+                        <button class="btn" onclick="openPasswordModal()">Change Password</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Portal -->
+        <div id="studentPortal" class="portal">
+            <div class="portal-header">
+                <h2>Student Portal - <span id="studentNameHeader"></span></h2>
+                <button class="logout-btn btn" onclick="logout()">Logout</button>
+            </div>
+
+            <div id="studentLogin" class="login-form">
+                <h3 style="color: #e94560; margin-bottom: 1.5rem;">Student Login</h3>
+                <div class="form-group">
+                    <label>Select Student</label>
+                    <select id="studentSelect" style="margin-bottom: 1rem;">
+                        <option value="">-- Select Student --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="studentPassword" value="student123">
+                </div>
+                <button class="btn" onclick="studentLogin()">Login</button>
+            </div>
+
+            <div id="studentDashboard" style="display: none;">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3 id="studentAttendancePercent">0%</h3>
+                        <p>Class Attendance</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="studentPendingAssignments">0</h3>
+                        <p>Pending Assignments</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="studentActiveIssues">0</h3>
+                        <p>Active Issues</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="studentLeaveStatus">-</h3>
+                        <p>Leave Status</p>
+                    </div>
+                </div>
+
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event, 'student', 'attendance')">Attendance</button>
+                    <button class="tab" onclick="switchTab(event, 'student', 'leaves')" id="studentLeavesTab">Leave Requests</button>
+                    <button class="tab" onclick="switchTab(event, 'student', 'assignments')" id="studentAssignmentsTab">Assignments</button>
+                    <button class="tab" onclick="switchTab(event, 'student', 'hostel')" id="studentHostelTab">Hostel Issues</button>
+                    <button class="tab" onclick="switchTab(event, 'student', 'profile')">My Details</button>
+                </div>
+
+                <!-- Attendance Tab -->
+                <div id="student-attendance" class="tab-content active">
+                    <div class="dashboard-grid">
+                        <div class="card">
+                            <h3>Mark Attendance</h3>
+                            <div class="form-group">
+                                <label>5-Character Code</label>
+                                <input type="text" id="qrCodeInput" placeholder="Enter 5-character code" 
+                                       maxlength="5" style="text-transform: uppercase; font-size: 1.2rem; text-align: center; letter-spacing: 0.2rem;">
+                            </div>
+                            <button class="btn" onclick="markAttendance()">Mark Attendance</button>
+                        </div>
+
+                        <div class="card">
+                            <h3>Attendance History</h3>
+                            <div id="attendanceHistoryContainer"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Leave Requests Tab -->
+                <div id="student-leaves" class="tab-content">
+                    <div class="dashboard-grid">
+                        <div class="card">
+                            <h3>Apply for Leave</h3>
+                            <div class="form-group">
+                                <label>Leave Type</label>
+                                <select id="leaveType">
+                                    <option>Medical Leave</option>
+                                    <option>Personal Leave</option>
+                                    <option>Emergency Leave</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>From Date</label>
+                                <input type="date" id="leaveFrom">
+                            </div>
+                            <div class="form-group">
+                                <label>To Date</label>
+                                <input type="date" id="leaveTo">
+                            </div>
+                            <div class="form-group">
+                                <label>Reason</label>
+                                <textarea id="leaveReason" placeholder="Explain your reason for leave..."></textarea>
+                            </div>
+                            <button class="btn" onclick="submitLeave()">Submit Leave Request</button>
+                        </div>
+
+                        <div class="card">
+                            <h3>Leave History</h3>
+                            <ul class="request-list" id="studentLeaveHistory"></ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Assignments Tab -->
+                <div id="student-assignments" class="tab-content">
+                    <div class="dashboard-grid">
+                        <div class="card">
+                            <h3>Upload Assignment</h3>
+                            <div class="form-group">
+                                <label>Select Assignment</label>
+                                <select id="assignmentSelectStudent">
+                                    <option value="">-- Select Assignment --</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Assignment File</label>
+                                <input type="file" id="assignmentFileInput" accept=".pdf,.doc,.docx,.txt">
+                            </div>
+                            <button class="btn" onclick="uploadAssignment()">Upload Assignment</button>
+                        </div>
+
+                        <div class="card">
+                            <h3>My Submissions</h3>
+                            <div id="studentSubmissionsList"></div>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-top: 1rem;">
+                        <h3>Available Assignments</h3>
+                        <div id="studentAvailableAssignments"></div>
+                    </div>
+                </div>
+
+                <!-- Hostel Issues Tab -->
+                <div id="student-hostel" class="tab-content">
+                    <div class="dashboard-grid">
+                        <div class="card">
+                            <h3>Raise Hostel Issue</h3>
+                            <div class="form-group">
+                                <label>Issue Type</label>
+                                <select id="issueType">
+                                    <option>Room Maintenance</option>
+                                    <option>Electrical Issue</option>
+                                    <option>Plumbing Issue</option>
+                                    <option>Cleanliness</option>
+                                    <option>Security Concern</option>
+                                    <option>Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Description</label>
+                                <textarea id="issueDescription" placeholder="Describe the issue in detail..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Priority</label>
+                                <select id="issuePriority">
+                                    <option>Low</option>
+                                    <option>Medium</option>
+                                    <option>High</option>
+                                    <option>Urgent</option>
+                                </select>
+                            </div>
+                            <button class="btn" onclick="submitHostelIssue()">Submit Issue</button>
+                        </div>
+
+                        <div class="card">
+                            <h3>My Issues</h3>
+                            <ul class="request-list" id="studentHostelIssues"></ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- My Details Tab -->
+                <div id="student-profile" class="tab-content">
+                    <div class="card">
+                        <h3>My Information</h3>
+                        <div id="studentProfileInfo"></div>
+                        <button class="btn" onclick="openPasswordModal()" style="margin-top: 1rem;">Change Password</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Faculty Portal -->
+        <div id="facultyPortal" class="portal">
+            <div class="portal-header">
+                <h2>Faculty Portal - <span id="facultyNameHeader"></span></h2>
+                <button class="logout-btn btn" onclick="logout()">Logout</button>
+            </div>
+
+            <div id="facultyLogin" class="login-form">
+                <h3 style="color: #e94560; margin-bottom: 1.5rem;">Faculty Login</h3>
+                <div class="form-group">
+                    <label>Select Faculty</label>
+                    <select id="facultySelect">
+                        <option value="">-- Select Faculty --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="facultyPassword" value="faculty123">
+                </div>
+                <button class="btn" onclick="facultyLogin()">Login</button>
+            </div>
+
+            <div id="facultyDashboard" style="display: none;">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3 id="facultyTodayAttendance">0</h3>
+                        <p>Students Present Today</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="facultyPendingAssignments">0</h3>
+                        <p>Submissions to Review</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="facultyActiveQR">Inactive</h3>
+                        <p>QR Status</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="facultyMyStudents">0</h3>
+                        <p>My Students</p>
+                    </div>
+                </div>
+
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event, 'faculty', 'attendance')">Attendance</button>
+                    <button class="tab" onclick="switchTab(event, 'faculty', 'assignments')" id="facultyAssignmentsTab">Create Assignment</button>
+                    <button class="tab" onclick="switchTab(event, 'faculty', 'submissions')" id="facultySubmissionsTab">Review Submissions</button>
+                    <button class="tab" onclick="switchTab(event, 'faculty', 'profile')">My Profile</button>
+                </div>
+
+                <!-- Attendance Tab -->
+                <div id="faculty-attendance" class="tab-content active">
+                    <div class="dashboard-grid">
+                        <div class="card">
+                            <h3>Generate Attendance Code</h3>
+                            <div class="form-group">
+                                <label>Select Subject</label>
+                                <select id="qrSubject">
+                                    <option>Mathematics</option>
+                                    <option>Physics</option>
+                                    <option>Chemistry</option>
+                                    <option>Computer Science</option>
+                                    <option>English</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Select Slot</label>
+                                <select id="qrSlot">
+                                    <option>9:00 AM - 10:00 AM</option>
+                                    <option>10:00 AM - 11:00 AM</option>
+                                    <option>11:00 AM - 12:00 PM</option>
+                                    <option>2:00 PM - 3:00 PM</option>
+                                    <option>3:00 PM - 4:00 PM</option>
+                                </select>
+                            </div>
+                            <button class="btn" onclick="generateQR()">Generate Code</button>
+                            
+                            <div id="qrDisplay" style="display: none; margin-top: 1rem;">
+                                <div class="qr-code">
+                                    <p style="margin: 0; color: #b0b0b0; font-size: 0.9rem;">Attendance Code</p>
+                                    <div class="qr-code-text" id="qrCodeDisplay">XXXXX</div>
+                                    <p style="margin: 0; color: #b0b0b0; font-size: 0.85rem;">Students enter this code</p>
+                                </div>
+                                <div class="timer">Auto-refresh in: <span id="qrTimer">10</span>s</div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h3>Today's Attendance</h3>
+                            <div id="todayAttendance">
+                                <p><strong>Subject:</strong> <span id="currentSubject">-</span></p>
+                                <p><strong>Slot:</strong> <span id="currentSlot">-</span></p>
+                                <p><strong>Students Present:</strong> <span id="presentCount">0</span></p>
+                                <div id="attendanceStudentsList"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Create Assignment Tab -->
+                <div id="faculty-assignments" class="tab-content">
+                    <div class="card">
+                        <h3>Create New Assignment</h3>
+                        <div class="form-group">
+                            <label>Select Subject</label>
+                            <select id="assignSubject">
+                                <option>Mathematics</option>
+                                <option>Physics</option>
+                                <option>Chemistry</option>
+                                <option>Computer Science</option>
+                                <option>English</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Assignment Title</label>
+                            <input type="text" id="assignTitle" placeholder="e.g., Calculus Chapter 5 Problems">
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea id="assignDescription" placeholder="Detailed instructions for the assignment..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Due Date</label>
+                            <input type="date" id="assignDueDate">
+                        </div>
+                        <button class="btn" onclick="createAssignment()">Create Assignment</button>
+                    </div>
+
+                    <div class="card" style="margin-top: 1rem;">
+                        <h3>My Active Assignments</h3>
+                        <div id="facultyActiveAssignmentsList"></div>
+                    </div>
+                </div>
+
+                <!-- Review Submissions Tab -->
+                <div id="faculty-submissions" class="tab-content">
+                    <div class="card">
+                        <h3>Assignment Submissions</h3>
+                        <div id="facultySubmissionsList"></div>
+                    </div>
+                </div>
+
+                <!-- My Profile Tab -->
+                <div id="faculty-profile" class="tab-content">
+                    <div class="card">
+                        <h3>Faculty Profile</h3>
+                        <div id="facultyProfileInfo"></div>
+                        <button class="btn" onclick="openPasswordModal()" style="margin-top: 1rem;">Change Password</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Proctor Portal -->
+        <div id="proctorPortal" class="portal">
+            <div class="portal-header">
+                <h2>Proctor Portal - <span id="proctorNameHeader"></span></h2>
+                <button class="logout-btn btn" onclick="logout()">Logout</button>
+            </div>
+
+            <div id="proctorLogin" class="login-form">
+                <h3 style="color: #e94560; margin-bottom: 1.5rem;">Proctor Login</h3>
+                <div class="form-group">
+                    <label>Select Proctor</label>
+                    <select id="proctorSelect">
+                        <option value="">-- Select Proctor --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="proctorPassword" value="proctor123">
+                </div>
+                <button class="btn" onclick="proctorLogin()">Login</button>
+            </div>
+
+            <div id="proctorDashboard" style="display: none;">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3 id="proctorStudentsCount">0</h3>
+                        <p>My Students</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="proctorPendingLeaves">0</h3>
+                        <p>Pending Leaves</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="proctorApprovedLeaves">0</h3>
+                        <p>Approved Leaves</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="proctorRejectedLeaves">0</h3>
+                        <p>Rejected Leaves</p>
+                    </div>
+                </div>
+
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event, 'proctor', 'leaves')" id="proctorLeavesTab">Leave Requests</button>
+                    <button class="tab" onclick="switchTab(event, 'proctor', 'students')">My Students</button>
+                    <button class="tab" onclick="switchTab(event, 'proctor', 'manage')">Manage Credentials</button>
+                    <button class="tab" onclick="switchTab(event, 'proctor', 'profile')">My Profile</button>
+                </div>
+
+                <!-- Leave Requests Tab -->
+                <div id="proctor-leaves" class="tab-content active">
+                    <div class="card">
+                        <h3>Pending Leave Requests</h3>
+                        <ul class="request-list" id="proctorPendingLeavesList"></ul>
+                    </div>
+
+                    <div class="card" style="margin-top: 1rem;">
+                        <h3>Leave History</h3>
+                        <div id="proctorLeaveHistoryList"></div>
+                    </div>
+                </div>
+
+                <!-- My Students Tab -->
+                <div id="proctor-students" class="tab-content">
+                    <div class="card">
+                        <h3>My Assigned Students</h3>
+                        <div id="proctorStudentsList"></div>
+                    </div>
+                </div>
+
+                <!-- Manage Credentials Tab -->
+                <div id="proctor-manage" class="tab-content">
+                    <div class="card">
+                        <h3>Reset Student Password</h3>
+                        <div class="form-group">
+                            <label>Select Student</label>
+                            <select id="proctorStudentSelect"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>New Password</label>
+                            <input type="text" id="proctorNewStudentPassword">
+                        </div>
+                        <button class="btn" onclick="resetStudentPassword()">Reset Password</button>
+                    </div>
+                </div>
+
+                <!-- My Profile Tab -->
+                <div id="proctor-profile" class="tab-content">
+                    <div class="card">
+                        <h3>Proctor Profile</h3>
+                        <div id="proctorProfileInfo"></div>
+                        <button class="btn" onclick="openPasswordModal()" style="margin-top: 1rem;">Change Password</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Parent Portal -->
+        <div id="parentPortal" class="portal">
+            <div class="portal-header">
+                <h2>Parent Portal - <span id="parentStudentHeader"></span></h2>
+                <button class="logout-btn btn" onclick="logout()">Logout</button>
+            </div>
+
+            <div id="parentLogin" class="login-form">
+                <h3 style="color: #e94560; margin-bottom: 1.5rem;">Parent Login</h3>
+                <div class="form-group">
+                    <label>Select Parent</label>
+                    <select id="parentSelect">
+                        <option value="">-- Select Parent Account --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="parentPassword" value="parent123">
+                </div>
+                <button class="btn" onclick="parentLogin()">Login</button>
+            </div>
+
+            <div id="parentDashboard" style="display: none;">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3 id="parentAttendancePercent">0%</h3>
+                        <p>Attendance</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="parentAssignmentsCount">0/0</h3>
+                        <p>Assignments</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="parentPendingLeaves">0</h3>
+                        <p>Pending Approvals</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="parentHostelIssues">0</h3>
+                        <p>Hostel Issues</p>
+                    </div>
+                </div>
+
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event, 'parent', 'overview')">Overview</button>
+                    <button class="tab" onclick="switchTab(event, 'parent', 'leaves')" id="parentLeavesTab">Leave Approvals</button>
+                    <button class="tab" onclick="switchTab(event, 'parent', 'assignments')">Assignments</button>
+                    <button class="tab" onclick="switchTab(event, 'parent', 'hostel')">Hostel</button>
+                    <button class="tab" onclick="switchTab(event, 'parent', 'profile')">My Profile</button>
+                </div>
+
+                <!-- Overview Tab -->
+                <div id="parent-overview" class="tab-content active">
+                    <div class="card">
+                        <h3>Recent Activities</h3>
+                        <div id="parentRecentActivities"></div>
+                    </div>
+                </div>
+
+                <!-- Leave Approvals Tab -->
+                <div id="parent-leaves" class="tab-content">
+                    <div class="card">
+                        <h3>Pending Leave Approvals</h3>
+                        <ul class="request-list" id="parentPendingLeavesList"></ul>
+                    </div>
+
+                    <div class="card" style="margin-top: 1rem;">
+                        <h3>Leave History</h3>
+                        <div id="parentLeaveHistoryList"></div>
+                    </div>
+                </div>
+
+                <!-- Assignments Tab -->
+                <div id="parent-assignments" class="tab-content">
+                    <div class="card">
+                        <h3>Assignment Tracking</h3>
+                        <div id="parentAssignmentsList"></div>
+                    </div>
+                </div>
+
+                <!-- Hostel Tab -->
+                <div id="parent-hostel" class="tab-content">
+                    <div class="card">
+                        <h3>Hostel Issues</h3>
+                        <div id="parentHostelIssuesList"></div>
+                    </div>
+                </div>
+
+                <!-- My Profile Tab -->
+                <div id="parent-profile" class="tab-content">
+                    <div class="card">
+                        <h3>Parent Profile</h3>
+                        <div id="parentProfileInfo"></div>
+                        <button class="btn" onclick="openPasswordModal()" style="margin-top: 1rem;">Change Password</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- HR Portal -->
+        <div id="hrPortal" class="portal">
+            <div class="portal-header">
+                <h2>Hostel Representative Portal</h2>
+                <button class="logout-btn btn" onclick="logout()">Logout</button>
+            </div>
+
+            <div id="hrLogin" class="login-form">
+                <h3 style="color: #e94560; margin-bottom: 1.5rem;">HR Login</h3>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="hrEmail" value="hr@college.edu">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="hrPassword" value="hr123">
+                </div>
+                <button class="btn" onclick="hrLogin()">Login</button>
+            </div>
+
+            <div id="hrDashboard" style="display: none;">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3 id="hrTotalStudents">0</h3>
+                        <p>Total Students</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="hrPendingIssues">0</h3>
+                        <p>Pending Issues</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="hrResolvedIssues">0</h3>
+                        <p>Resolved Issues</p>
+                    </div>
+                </div>
+
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event, 'hr', 'issues')" id="hrIssuesTab">Hostel Issues</button>
+                    <button class="tab" onclick="switchTab(event, 'hr', 'students')">Student Directory</button>
+                    <button class="tab" onclick="switchTab(event, 'hr', 'profile')">My Profile</button>
+                </div>
+
+                <!-- Issues Tab -->
+                <div id="hr-issues" class="tab-content active">
+                    <div class="card">
+                        <h3>Pending Issues</h3>
+                        <ul class="request-list" id="hrPendingIssuesList"></ul>
+                    </div>
+
+                    <div class="card" style="margin-top: 1rem;">
+                        <h3>Resolved Issues</h3>
+                        <div id="hrResolvedIssuesList"></div>
+                    </div>
+                </div>
+
+                <!-- Students Tab -->
+                <div id="hr-students" class="tab-content">
+                    <div class="card">
+                        <h3>Student Directory</h3>
+                        <div id="hrStudentDirectory"></div>
+                    </div>
+                </div>
+
+                <!-- My Profile Tab -->
+                <div id="hr-profile" class="tab-content">
+                    <div class="card">
+                        <h3>HR Profile</h3>
+                        <div id="hrProfileInfo"></div>
+                        <button class="btn" onclick="openPasswordModal()" style="margin-top: 1rem;">Change Password</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== DATABASE INITIALIZATION ==========
+        
+        class RealTimeDB {
+            constructor() {
+                this.init();
+                this.setupStorageListener();
+            }
+
+            init() {
+                if (!localStorage.getItem('campusDB')) {
+                    const initialData = {
+                        admin: { username: 'admin', password: 'admin123' },
+                        students: [
+                            { email: 'student1@college.edu', password: 'student123', regNo: 'CS2021001', name: 'Aarav Sharma', room: '101', proctorId: 'P001', parentId: 'PAR001' },
+                            { email: 'student2@college.edu', password: 'student123', regNo: 'CS2021002', name: 'Diya Patel', room: '102', proctorId: 'P001', parentId: 'PAR002' },
+                            { email: 'student3@college.edu', password: 'student123', regNo: 'CS2021003', name: 'Vihaan Kumar', room: '201', proctorId: 'P002', parentId: 'PAR003' },
+                            { email: 'student4@college.edu', password: 'student123', regNo: 'CS2021004', name: 'Ananya Singh', room: '202', proctorId: 'P002', parentId: 'PAR004' }
+                        ],
+                        faculty: [
+                            { id: 'F001', email: 'faculty1@college.edu', password: 'faculty123', name: 'Dr. Rajesh Kumar', subject: 'Mathematics' },
+                            { id: 'F002', email: 'faculty2@college.edu', password: 'faculty123', name: 'Dr. Priya Menon', subject: 'Physics' },
+                            { id: 'F003', email: 'faculty3@college.edu', password: 'faculty123', name: 'Prof. Amit Sharma', subject: 'Chemistry' }
+                        ],
+                        proctors: [
+                            { id: 'P001', email: 'proctor1@college.edu', password: 'proctor123', name: 'Prof. Suresh Babu' },
+                            { id: 'P002', email: 'proctor2@college.edu', password: 'proctor123', name: 'Dr. Lakshmi Devi' }
+                        ],
+                        parents: [
+                            { id: 'PAR001', email: 'parent1@email.com', password: 'parent123', studentRegNo: 'CS2021001', studentName: 'Aarav Sharma', mobile: '+91-9876543210', address: '123 Main St, Mumbai' },
+                            { id: 'PAR002', email: 'parent2@email.com', password: 'parent123', studentRegNo: 'CS2021002', studentName: 'Diya Patel', mobile: '+91-9876543211', address: '456 Park Ave, Delhi' },
+                            { id: 'PAR003', email: 'parent3@email.com', password: 'parent123', studentRegNo: 'CS2021003', studentName: 'Vihaan Kumar', mobile: '+91-9876543212', address: '789 Hill Rd, Bangalore' },
+                            { id: 'PAR004', email: 'parent4@email.com', password: 'parent123', studentRegNo: 'CS2021004', studentName: 'Ananya Singh', mobile: '+91-9876543213', address: '321 Lake View, Chennai' }
+                        ],
+                        hr: [
+                            { email: 'hr@college.edu', password: 'hr123', name: 'Hostel Manager' }
+                        ],
+                        leaves: [],
+                        assignments: [],
+                        hostelIssues: [],
+                        attendance: [],
+                        activeQR: null,
+                        submittedAssignments: []
+                    };
+                    localStorage.setItem('campusDB', JSON.stringify(initialData));
+                }
+            }
+
+            getData() {
+                return JSON.parse(localStorage.getItem('campusDB'));
+            }
+
+            setData(data) {
+                localStorage.setItem('campusDB', JSON.stringify(data));
+                this.triggerUpdate();
+            }
+
+            triggerUpdate() {
+                window.dispatchEvent(new CustomEvent('campusDBUpdate'));
+            }
+
+            setupStorageListener() {
+                window.addEventListener('storage', (e) => {
+                    if (e.key === 'campusDB') {
+                        window.dispatchEvent(new CustomEvent('campusDBUpdate'));
+                    }
+                });
+            }
+
+            addLeave(leave) {
+                const data = this.getData();
+                leave.id = 'L' + Date.now();
+                leave.timestamp = new Date().toISOString();
+                data.leaves.push(leave);
+                this.setData(data);
+                return leave.id;
+            }
+
+            updateLeave(leaveId, updates) {
+                const data = this.getData();
+                const leave = data.leaves.find(l => l.id === leaveId);
+                if (leave) {
+                    Object.assign(leave, updates);
+                    this.setData(data);
+                }
+            }
+
+            addAssignment(assignment) {
+                const data = this.getData();
+                assignment.id = 'A' + Date.now();
+                assignment.timestamp = new Date().toISOString();
+                data.assignments.push(assignment);
+                this.setData(data);
+                return assignment.id;
+            }
+
+            submitAssignment(submission) {
+                const data = this.getData();
+                submission.id = 'S' + Date.now();
+                submission.timestamp = new Date().toISOString();
+                submission.status = 'submitted';
+                data.submittedAssignments.push(submission);
+                this.setData(data);
+                return submission.id;
+            }
+
+            updateSubmission(submissionId, updates) {
+                const data = this.getData();
+                const submission = data.submittedAssignments.find(s => s.id === submissionId);
+                if (submission) {
+                    Object.assign(submission, updates);
+                    this.setData(data);
+                }
+            }
+
+            addHostelIssue(issue) {
+                const data = this.getData();
+                issue.id = 'H' + Date.now();
+                issue.timestamp = new Date().toISOString();
+                issue.status = 'pending';
+                data.hostelIssues.push(issue);
+                this.setData(data);
+                return issue.id;
+            }
+
+            updateHostelIssue(issueId, updates) {
+                const data = this.getData();
+                const issue = data.hostelIssues.find(i => i.id === issueId);
+                if (issue) {
+                    Object.assign(issue, updates);
+                    this.setData(data);
+                }
+            }
+
+            addAttendance(attendance) {
+                const data = this.getData();
+                attendance.id = 'AT' + Date.now();
+                attendance.timestamp = new Date().toISOString();
+                data.attendance.push(attendance);
+                this.setData(data);
+            }
+
+            setActiveQR(qrData) {
+                const data = this.getData();
+                data.activeQR = qrData;
+                this.setData(data);
+            }
+
+            addStudent(student) {
+                const data = this.getData();
+                student.regNo = 'CS2021' + String(data.students.length + 1).padStart(3, '0');
+                student.email = student.email || `${student.regNo}@college.edu`;
+                data.students.push(student);
+                this.setData(data);
+                return student.regNo;
+            }
+
+            addFaculty(faculty) {
+                const data = this.getData();
+                faculty.id = 'F' + String(data.faculty.length + 1).padStart(3, '0');
+                data.faculty.push(faculty);
+                this.setData(data);
+                return faculty.id;
+            }
+
+            addProctor(proctor) {
+                const data = this.getData();
+                proctor.id = 'P' + String(data.proctors.length + 1).padStart(3, '0');
+                data.proctors.push(proctor);
+                this.setData(data);
+                return proctor.id;
+            }
+
+            addParent(parent) {
+                const data = this.getData();
+                parent.id = 'PAR' + String(data.parents.length + 1).padStart(3, '0');
+                data.parents.push(parent);
+                this.setData(data);
+                return parent.id;
+            }
+
+            updatePassword(role, identifier, newPassword) {
+                const data = this.getData();
+                if (role === 'admin') {
+                    data.admin.password = newPassword;
+                } else if (role === 'student') {
+                    const student = data.students.find(s => s.regNo === identifier);
+                    if (student) student.password = newPassword;
+                } else if (role === 'faculty') {
+                    const faculty = data.faculty.find(f => f.id === identifier);
+                    if (faculty) faculty.password = newPassword;
+                } else if (role === 'proctor') {
+                    const proctor = data.proctors.find(p => p.id === identifier);
+                    if (proctor) proctor.password = newPassword;
+                } else if (role === 'parent') {
+                    const parent = data.parents.find(p => p.id === identifier);
+                    if (parent) parent.password = newPassword;
+                } else if (role === 'hr') {
+                    data.hr[0].password = newPassword;
+                }
+                this.setData(data);
+            }
+
+            updateStudentProctor(studentRegNo, proctorId) {
+                const data = this.getData();
+                const student = data.students.find(s => s.regNo === studentRegNo);
+                if (student) {
+                    student.proctorId = proctorId;
+                    this.setData(data);
+                }
+            }
+        }
+
+        const db = new RealTimeDB();
+        let currentUser = null;
+        let currentRole = null;
+        let qrTimer = null;
+
+        // ========== UTILITY FUNCTIONS ==========
+
+        function generate5CharCode() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let code = '';
+            for (let i = 0; i < 5; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return code;
+        }
+
+        function showToast(message, type = 'info', title = 'Notification') {
+            const toast = document.getElementById('toast');
+            const toastIcon = document.getElementById('toastIcon');
+            const toastTitle = document.getElementById('toastTitle');
+            const toastMessage = document.getElementById('toastMessage');
+
+            const icons = {
+                success: '✅',
+                error: '❌',
+                info: '🔔',
+                warning: '⚠️'
+            };
+
+            toast.className = 'toast show toast-' + type;
+            toastIcon.textContent = icons[type] || icons.info;
+            toastTitle.textContent = title;
+            toastMessage.textContent = message;
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 5000);
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+        }
+
+        function formatDateOnly(dateString) {
+            return new Date(dateString).toLocaleDateString();
+        }
+
+        function updateNotificationBadge(elementId, count) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+
+            let badge = element.querySelector('.notification-badge');
+            if (count > 0) {
+                if (!badge) {
+                    badge = document.createElement('span');
+                    badge.className = 'notification-badge';
+                    element.style.position = 'relative';
+                    element.appendChild(badge);
+                }
+                badge.textContent = count;
+            } else if (badge) {
+                badge.remove();
+            }
+        }
+
+        function showPortal(role) {
+            document.querySelectorAll('.portal').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('active'));
+            
+            const portal = document.getElementById(role + 'Portal');
+            if (portal) {
+                portal.classList.add('active');
+                currentRole = role;
+                
+                const button = document.getElementById(role + 'RoleBtn');
+                if (button) {
+                    button.classList.add('active');
+                }
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            currentRole = null;
+            if (qrTimer) clearInterval(qrTimer);
+            location.reload();
+        }
+
+        function switchTab(event, portal, tab) {
+            const tabs = document.querySelectorAll(`#${portal}Dashboard .tab`);
+            tabs.forEach(t => t.classList.remove('active'));
+
+            event.target.classList.add('active');
+
+            const contents = document.querySelectorAll(`#${portal}Dashboard .tab-content`);
+            contents.forEach(c => c.classList.remove('active'));
+
+            const content = document.getElementById(`${portal}-${tab}`);
+            if (content) {
+                content.classList.add('active');
+            }
+        }
+
+        function populateDropdowns() {
+            const data = db.getData();
+
+            // Student dropdown
+            const studentSelect = document.getElementById('studentSelect');
+            studentSelect.innerHTML = '<option value="">-- Select Student --</option>' +
+                data.students.map(s => `<option value="${s.regNo}">${s.name} (${s.regNo})</option>`).join('');
+
+            // Faculty dropdown
+            const facultySelect = document.getElementById('facultySelect');
+            facultySelect.innerHTML = '<option value="">-- Select Faculty --</option>' +
+                data.faculty.map(f => `<option value="${f.id}">${f.name} - ${f.subject}</option>`).join('');
+
+            // Proctor dropdown
+            const proctorSelect = document.getElementById('proctorSelect');
+            proctorSelect.innerHTML = '<option value="">-- Select Proctor --</option>' +
+                data.proctors.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+
+            // Parent dropdown
+            const parentSelect = document.getElementById('parentSelect');
+            parentSelect.innerHTML = '<option value="">-- Select Parent Account --</option>' +
+                data.parents.map(p => `<option value="${p.id}">Parent of ${p.studentName}</option>`).join('');
+
+            // Admin dropdowns
+            const assignStudentSelect = document.getElementById('assignStudentSelect');
+            if (assignStudentSelect) {
+                assignStudentSelect.innerHTML = '<option value="">-- Select Student --</option>' +
+                    data.students.map(s => `<option value="${s.regNo}">${s.name} (${s.regNo})</option>`).join('');
+            }
+
+            const assignProctorSelect = document.getElementById('assignProctorSelect');
+            if (assignProctorSelect) {
+                assignProctorSelect.innerHTML = '<option value="">-- Select Proctor --</option>' +
+                    data.proctors.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+            }
+
+            const newParentStudentRegNo = document.getElementById('newParentStudentRegNo');
+            if (newParentStudentRegNo) {
+                newParentStudentRegNo.innerHTML = '<option value="">-- Select Student --</option>' +
+                    data.students.map(s => `<option value="${s.regNo}">${s.name} (${s.regNo})</option>`).join('');
+            }
+
+            // Proctor student select
+            const proctorStudentSelect = document.getElementById('proctorStudentSelect');
+            if (proctorStudentSelect && currentUser && currentRole === 'proctor') {
+                const myStudents = data.students.filter(s => s.proctorId === currentUser.id);
+                proctorStudentSelect.innerHTML = '<option value="">-- Select Student --</option>' +
+                    myStudents.map(s => `<option value="${s.regNo}">${s.name} (${s.regNo})</option>`).join('');
+            }
+        }
+
+        // ========== PASSWORD MANAGEMENT ==========
+
+        function openPasswordModal() {
+            document.getElementById('passwordModal').classList.add('show');
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+        }
+
+        function closePasswordModal() {
+            document.getElementById('passwordModal').classList.remove('show');
+        }
+
+        function changePassword() {
+            const currentPass = document.getElementById('currentPassword').value;
+            const newPass = document.getElementById('newPassword').value;
+            const confirmPass = document.getElementById('confirmPassword').value;
+
+            if (!currentPass || !newPass || !confirmPass) {
+                showToast('Please fill all fields', 'error', 'Error');
+                return;
+            }
+
+            if (newPass !== confirmPass) {
+                showToast('New passwords do not match', 'error', 'Error');
+                return;
+            }
+
+            const data = db.getData();
+            let currentPassword = '';
+            let identifier = '';
+
+            if (currentRole === 'admin') {
+                currentPassword = data.admin.password;
+                identifier = 'admin';
+            } else if (currentRole === 'student') {
+                currentPassword = currentUser.password;
+                identifier = currentUser.regNo;
+            } else if (currentRole === 'faculty') {
+                currentPassword = currentUser.password;
+                identifier = currentUser.id;
+            } else if (currentRole === 'proctor') {
+                currentPassword = currentUser.password;
+                identifier = currentUser.id;
+            } else if (currentRole === 'parent') {
+                currentPassword = currentUser.password;
+                identifier = currentUser.id;
+            } else if (currentRole === 'hr') {
+                currentPassword = currentUser.password;
+                identifier = 'hr';
+            }
+
+            if (currentPass !== currentPassword) {
+                showToast('Current password is incorrect', 'error', 'Error');
+                return;
+            }
+
+            db.updatePassword(currentRole, identifier, newPass);
+            currentUser.password = newPass;
+
+            showToast('Password updated successfully!', 'success', 'Success');
+            closePasswordModal();
+        }
+
+        // ========== ADMIN PORTAL ==========
+
+        function adminLogin() {
+            const username = document.getElementById('adminUsername').value;
+            const password = document.getElementById('adminPassword').value;
+
+            const data = db.getData();
+            if (username === data.admin.username && password === data.admin.password) {
+                currentUser = data.admin;
+                document.getElementById('adminLogin').style.display = 'none';
+                document.getElementById('adminDashboard').style.display = 'block';
+                showToast('Welcome Admin!', 'success', 'Login Successful');
+                loadAdminDashboard();
+            } else {
+                showToast('Invalid credentials', 'error', 'Login Failed');
+            }
+        }
+
+        function loadAdminDashboard() {
+            const data = db.getData();
+            document.getElementById('adminTotalStudents').textContent = data.students.length;
+            document.getElementById('adminTotalFaculty').textContent = data.faculty.length;
+            document.getElementById('adminTotalProctors').textContent = data.proctors.length;
+            document.getElementById('adminTotalParents').textContent = data.parents.length;
+
+            loadAdminUsers();
+            loadCurrentAssignments();
+            populateDropdowns();
+        }
+
+        function loadAdminUsers() {
+            const data = db.getData();
+
+            // Students
+            const studentsList = document.getElementById('adminStudentsList');
+            studentsList.innerHTML = data.students.map(s => {
+                const proctor = data.proctors.find(p => p.id === s.proctorId);
+                return `
+                    <div class="user-card">
+                        <div class="user-info">
+                            <h4>${s.name} (${s.regNo})</h4>
+                            <p>Email: ${s.email} | Room: ${s.room} | Proctor: ${proctor ? proctor.name : 'Not Assigned'}</p>
+                        </div>
+                        <div class="user-actions">
+                            <button class="btn btn-sm" onclick="editUserPassword('student', '${s.regNo}')">Reset Password</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Faculty
+            const facultyList = document.getElementById('adminFacultyList');
+            facultyList.innerHTML = data.faculty.map(f => `
+                <div class="user-card">
+                    <div class="user-info">
+                        <h4>${f.name} (${f.id})</h4>
+                        <p>Email: ${f.email} | Subject: ${f.subject}</p>
+                    </div>
+                    <div class="user-actions">
+                        <button class="btn btn-sm" onclick="editUserPassword('faculty', '${f.id}')">Reset Password</button>
+                    </div>
+                </div>
+            `).join('');
+
+            // Proctors
+            const proctorsList = document.getElementById('adminProctorsList');
+            proctorsList.innerHTML = data.proctors.map(p => {
+                const studentCount = data.students.filter(s => s.proctorId === p.id).length;
+                return `
+                    <div class="user-card">
+                        <div class="user-info">
+                            <h4>${p.name} (${p.id})</h4>
+                            <p>Email: ${p.email} | Students: ${studentCount}</p>
+                        </div>
+                        <div class="user-actions">
+                            <button class="btn btn-sm" onclick="editUserPassword('proctor', '${p.id}')">Reset Password</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function editUserPassword(role, identifier) {
+            const newPassword = prompt('Enter new password:');
+            if (newPassword) {
+                db.updatePassword(role, identifier, newPassword);
+                showToast('Password updated successfully!', 'success', 'Success');
+            }
+        }
+
+        function addStudent() {
+            const name = document.getElementById('newStudentName').value;
+            const regNo = document.getElementById('newStudentRegNo').value;
+            const email = document.getElementById('newStudentEmail').value;
+            const room = document.getElementById('newStudentRoom').value;
+            const password = document.getElementById('newStudentPassword').value;
+
+            if (!name || !regNo || !email || !room) {
+                showToast('Please fill all required fields', 'error', 'Error');
+                return;
+            }
+
+            db.addStudent({
+                name: name,
+                regNo: regNo,
+                email: email,
+                room: room,
+                password: password,
+                proctorId: null,
+                parentId: null
+            });
+
+            showToast(`Student ${name} added successfully!`, 'success', 'Success');
+            document.getElementById('newStudentName').value = '';
+            document.getElementById('newStudentRegNo').value = '';
+            document.getElementById('newStudentEmail').value = '';
+            document.getElementById('newStudentRoom').value = '';
+            loadAdminDashboard();
+        }
+
+        function addFaculty() {
+            const name = document.getElementById('newFacultyName').value;
+            const email = document.getElementById('newFacultyEmail').value;
+            const subject = document.getElementById('newFacultySubject').value;
+            const password = document.getElementById('newFacultyPassword').value;
+
+            if (!name || !email || !subject) {
+                showToast('Please fill all required fields', 'error', 'Error');
+                return;
+            }
+
+            db.addFaculty({
+                name: name,
+                email: email,
+                subject: subject,
+                password: password
+            });
+
+            showToast(`Faculty ${name} added successfully!`, 'success', 'Success');
+            document.getElementById('newFacultyName').value = '';
+            document.getElementById('newFacultyEmail').value = '';
+            document.getElementById('newFacultySubject').value = '';
+            loadAdminDashboard();
+        }
+
+        function addProctor() {
+            const name = document.getElementById('newProctorName').value;
+            const email = document.getElementById('newProctorEmail').value;
+            const password = document.getElementById('newProctorPassword').value;
+
+            if (!name || !email) {
+                showToast('Please fill all required fields', 'error', 'Error');
+                return;
+            }
+
+            db.addProctor({
+                name: name,
+                email: email,
+                password: password
+            });
+
+            showToast(`Proctor ${name} added successfully!`, 'success', 'Success');
+            document.getElementById('newProctorName').value = '';
+            document.getElementById('newProctorEmail').value = '';
+            loadAdminDashboard();
+        }
+
+        function addParent() {
+            const studentRegNo = document.getElementById('newParentStudentRegNo').value;
+            const email = document.getElementById('newParentEmail').value;
+            const mobile = document.getElementById('newParentMobile').value;
+            const address = document.getElementById('newParentAddress').value;
+            const password = document.getElementById('newParentPassword').value;
+
+            if (!studentRegNo || !email || !mobile || !address) {
+                showToast('Please fill all required fields', 'error', 'Error');
+                return;
+            }
+
+            const data = db.getData();
+            const student = data.students.find(s => s.regNo === studentRegNo);
+
+            if (!student) {
+                showToast('Student not found', 'error', 'Error');
+                return;
+            }
+
+            const parentId = db.addParent({
+                studentRegNo: studentRegNo,
+                studentName: student.name,
+                email: email,
+                mobile: mobile,
+                address: address,
+                password: password
+            });
+
+            // Update student's parentId
+            student.parentId = parentId;
+            db.setData(data);
+
+            showToast(`Parent account created for ${student.name}!`, 'success', 'Success');
+            document.getElementById('newParentEmail').value = '';
+            document.getElementById('newParentMobile').value = '';
+            document.getElementById('newParentAddress').value = '';
+            loadAdminDashboard();
+        }
+
+        function assignProctor() {
+            const studentRegNo = document.getElementById('assignStudentSelect').value;
+            const proctorId = document.getElementById('assignProctorSelect').value;
+
+            if (!studentRegNo || !proctorId) {
+                showToast('Please select both student and proctor', 'error', 'Error');
+                return;
+            }
+
+            db.updateStudentProctor(studentRegNo, proctorId);
+            showToast('Proctor assigned successfully!', 'success', 'Success');
+            loadCurrentAssignments();
+        }
+
+        function loadCurrentAssignments() {
+            const data = db.getData();
+            const container = document.getElementById('currentAssignmentsList');
+
+            const studentsWithProctors = data.students.filter(s => s.proctorId);
+            
+            if (studentsWithProctors.length === 0) {
+                container.innerHTML = '<p style="color: #b0b0b0;">No assignments yet</p>';
+                return;
+            }
+
+            container.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Reg No</th>
+                            <th>Proctor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${studentsWithProctors.map(s => {
+                            const proctor = data.proctors.find(p => p.id === s.proctorId);
+                            return `
+                                <tr>
+                                    <td>${s.name}</td>
+                                    <td>${s.regNo}</td>
+                                    <td>${proctor ? proctor.name : 'Unknown'}</td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        // ========== STUDENT PORTAL ==========
+
+        function studentLogin() {
+            const regNo = document.getElementById('studentSelect').value;
+            const password = document.getElementById('studentPassword').value;
+
+            if (!regNo) {
+                showToast('Please select a student', 'error', 'Error');
+                return;
+            }
+
+            const data = db.getData();
+            const student = data.students.find(s => s.regNo === regNo && s.password === password);
+
+            if (student) {
+                currentUser = student;
+                document.getElementById('studentLogin').style.display = 'none';
+                document.getElementById('studentDashboard').style.display = 'block';
+                document.getElementById('studentNameHeader').textContent = student.name;
+                showToast('Welcome ' + student.name + '!', 'success', 'Login Successful');
+                loadStudentDashboard();
+                setupStudentListeners();
+            } else {
+                showToast('Invalid credentials', 'error', 'Login Failed');
+            }
+        }
+
+        function loadStudentDashboard() {
+            const data = db.getData();
+
+            // Calculate attendance
+            const myAttendance = data.attendance.filter(a => a.studentRegNo === currentUser.regNo);
+            const totalClasses = data.attendance.length > 0 ? Math.max(...data.attendance.map(a => {
+                return data.attendance.filter(att => att.subject === a.subject && att.slot === a.slot).length;
+            })) : 0;
+            const attendancePercent = totalClasses > 0 ? Math.round((myAttendance.length / totalClasses) * 100) : 0;
+            document.getElementById('studentAttendancePercent').textContent = attendancePercent + '%';
+
+            // Calculate assignments
+            const pendingAssignments = data.assignments.filter(a => {
+                return !data.submittedAssignments.find(s => 
+                    s.assignmentId === a.id && s.studentRegNo === currentUser.regNo
+                );
+            });
+            document.getElementById('studentPendingAssignments').textContent = pendingAssignments.length;
+
+            // Active issues
+            const activeIssues = data.hostelIssues.filter(i => 
+                i.studentRegNo === currentUser.regNo && i.status === 'pending'
+            );
+            document.getElementById('studentActiveIssues').textContent = activeIssues.length;
+
+            // Leave status
+            const myLeaves = data.leaves.filter(l => l.studentRegNo === currentUser.regNo);
+            const latestLeave = myLeaves[myLeaves.length - 1];
+            let leaveStatus = 'None';
+            if (latestLeave) {
+                if (!latestLeave.proctorStatus) leaveStatus = 'Pending';
+                else if (latestLeave.proctorStatus === 'approved' && !latestLeave.parentStatus) leaveStatus = 'Proctor OK';
+                else if (latestLeave.parentStatus === 'approved') leaveStatus = 'Approved';
+                else if (latestLeave.proctorStatus === 'rejected') leaveStatus = 'Rejected';
+            }
+            document.getElementById('studentLeaveStatus').textContent = leaveStatus;
+
+            loadStudentProfile();
+            loadStudentLeaves();
+            loadStudentAssignments();
+            loadStudentHostelIssues();
+            loadStudentAttendanceHistory();
+        }
+
+        function loadStudentProfile() {
+            const data = db.getData();
+            const proctor = data.proctors.find(p => p.id === currentUser.proctorId);
+            const parent = data.parents.find(p => p.id === currentUser.parentId);
+            const container = document.getElementById('studentProfileInfo');
+
+            container.innerHTML = `
+                <div class="info-box">
+                    <h4>Personal Information</h4>
+                    <div class="info-row">
+                        <span class="info-label">Name:</span>
+                        <span class="info-value">${currentUser.name}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Registration No:</span>
+                        <span class="info-value">${currentUser.regNo}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Email:</span>
+                        <span class="info-value">${currentUser.email}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Room No:</span>
+                        <span class="info-value">${currentUser.room}</span>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <h4>Proctor Details</h4>
+                    <div class="info-row">
+                        <span class="info-label">Name:</span>
+                        <span class="info-value">${proctor ? proctor.name : 'Not Assigned'}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Email:</span>
+                        <span class="info-value">${proctor ? proctor.email : '-'}</span>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <h4>Parent/Guardian Details</h4>
+                    <div class="info-row">
+                        <span class="info-label">Email:</span>
+                        <span class="info-value">${parent ? parent.email : 'Not Added'}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Mobile:</span>
+                        <span class="info-value">${parent ? parent.mobile : '-'}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Address:</span>
+                        <span class="info-value">${parent ? parent.address : '-'}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function setupStudentListeners() {
+            window.addEventListener('campusDBUpdate', () => {
+                if (currentRole === 'student' && currentUser) {
+                    loadStudentDashboard();
+                }
+            });
+        }
+
+        function loadStudentLeaves() {
+            const data = db.getData();
+            const myLeaves = data.leaves.filter(l => l.studentRegNo === currentUser.regNo);
+            const container = document.getElementById('studentLeaveHistory');
+
+            if (myLeaves.length === 0) {
+                container.innerHTML = '<li class="request-item">No leave requests yet</li>';
+                return;
+            }
+
+            container.innerHTML = myLeaves.map(leave => {
+                let statusBadge = '';
+                if (!leave.proctorStatus) {
+                    statusBadge = '<span class="badge badge-pending">Pending Proctor</span>';
+                } else if (leave.proctorStatus === 'rejected') {
+                    statusBadge = '<span class="badge badge-rejected">Rejected</span>';
+                } else if (leave.proctorStatus === 'approved' && !leave.parentStatus) {
+                    statusBadge = '<span class="badge badge-pending">Pending Parent</span>';
+                } else if (leave.parentStatus === 'approved') {
+                    statusBadge = '<span class="badge badge-approved">Fully Approved</span>';
+                } else if (leave.parentStatus === 'rejected') {
+                    statusBadge = '<span class="badge badge-rejected">Parent Rejected</span>';
+                }
+
+                return `
+                    <li class="request-item">
+                        <h4>${leave.type} ${statusBadge}</h4>
+                        <p><strong>Duration:</strong> ${formatDateOnly(leave.fromDate)} to ${formatDateOnly(leave.toDate)}</p>
+                        <p><strong>Reason:</strong> ${leave.reason}</p>
+                        <p class="timestamp">Applied: ${formatDate(leave.timestamp)}</p>
+                    </li>
+                `;
+            }).join('');
+        }
+
+        function submitLeave() {
+            const type = document.getElementById('leaveType').value;
+            const fromDate = document.getElementById('leaveFrom').value;
+            const toDate = document.getElementById('leaveTo').value;
+            const reason = document.getElementById('leaveReason').value;
+
+            if (!fromDate || !toDate || !reason) {
+                showToast('Please fill all fields', 'error', 'Error');
+                return;
+            }
+
+            const data = db.getData();
+            const proctor = data.proctors.find(p => p.id === currentUser.proctorId);
+
+            db.addLeave({
+                studentRegNo: currentUser.regNo,
+                studentName: currentUser.name,
+                proctorId: currentUser.proctorId,
+                proctorName: proctor ? proctor.name : '',
+                parentId: currentUser.parentId,
+                type: type,
+                fromDate: fromDate,
+                toDate: toDate,
+                reason: reason,
+                proctorStatus: null,
+                parentStatus: null
+            });
+
+            showToast('Leave request submitted to proctor!', 'success', 'Success');
+            document.getElementById('leaveFrom').value = '';
+            document.getElementById('leaveTo').value = '';
+            document.getElementById('leaveReason').value = '';
+            loadStudentLeaves();
+        }
+
+        function loadStudentAssignments() {
+            const data = db.getData();
+            const allAssignments = data.assignments;
+            const mySubmissions = data.submittedAssignments.filter(s => s.studentRegNo === currentUser.regNo);
+
+            const select = document.getElementById('assignmentSelectStudent');
+            const pending = allAssignments.filter(a => 
+                !mySubmissions.find(s => s.assignmentId === a.id)
+            );
+            select.innerHTML = '<option value="">-- Select Assignment --</option>' +
+                pending.map(a => `<option value="${a.id}">${a.title} (${a.subject})</option>`).join('');
+
+            const submissionsList = document.getElementById('studentSubmissionsList');
+            if (mySubmissions.length === 0) {
+                submissionsList.innerHTML = '<p style="color: #b0b0b0;">No submissions yet</p>';
+            } else {
+                submissionsList.innerHTML = mySubmissions.map(sub => {
+                    const assignment = allAssignments.find(a => a.id === sub.assignmentId);
+                    return `
+                        <div class="file-info">
+                            <span>📄</span>
+                            <div style="flex: 1;">
+                                <strong>${assignment ? assignment.title : 'Unknown'}</strong>
+                                <p style="margin: 0; font-size: 0.85rem; color: #b0b0b0;">${sub.fileName}</p>
+                                <p class="timestamp">Submitted: ${formatDate(sub.timestamp)}</p>
+                            </div>
+                            <span class="badge ${sub.status === 'approved' ? 'badge-approved' : 'badge-pending'}">
+                                ${sub.status === 'approved' ? 'Approved' : 'Pending Review'}
+                            </span>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            const availableList = document.getElementById('studentAvailableAssignments');
+            if (allAssignments.length === 0) {
+                availableList.innerHTML = '<p style="color: #b0b0b0;">No assignments available</p>';
+            } else {
+                availableList.innerHTML = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Subject</th>
+                                <th>Title</th>
+                                <th>Due Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${allAssignments.map(a => {
+                                const submitted = mySubmissions.find(s => s.assignmentId === a.id);
+                                return `
+                                    <tr>
+                                        <td>${a.subject}</td>
+                                        <td>${a.title}</td>
+                                        <td>${formatDateOnly(a.dueDate)}</td>
+                                        <td>
+                                            ${submitted ? 
+                                                `<span class="badge ${submitted.status === 'approved' ? 'badge-approved' : 'badge-pending'}">
+                                                    ${submitted.status === 'approved' ? 'Approved' : 'Submitted'}
+                                                </span>` :
+                                                '<span class="badge badge-pending">Not Submitted</span>'}
+                                        </td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                `;
+            }
+        }
+
+        function uploadAssignment() {
+            const assignmentId = document.getElementById('assignmentSelectStudent').value;
+            const fileInput = document.getElementById('assignmentFileInput');
+            const file = fileInput.files[0];
+
+            if (!assignmentId) {
+                showToast('Please select an assignment', 'error', 'Error');
+                return;
+            }
+
+            if (!file) {
+                showToast('Please select a file to upload', 'error', 'Error');
+                return;
+            }
+
+            const data = db.getData();
+            const assignment = data.assignments.find(a => a.id === assignmentId);
+
+            db.submitAssignment({
+                assignmentId: assignmentId,
+                assignmentTitle: assignment ? assignment.title : '',
+                studentRegNo: currentUser.regNo,
+                studentName: currentUser.name,
+                fileName: file.name,
+                fileSize: file.size,
+                facultyId: assignment ? assignment.facultyId : ''
+            });
+
+            showToast('Assignment uploaded successfully!', 'success', 'Success');
+            fileInput.value = '';
+            document.getElementById('assignmentSelectStudent').value = '';
+            loadStudentAssignments();
+        }
+
+        function loadStudentHostelIssues() {
+            const data = db.getData();
+            const myIssues = data.hostelIssues.filter(i => i.studentRegNo === currentUser.regNo);
+            const container = document.getElementById('studentHostelIssues');
+
+            if (myIssues.length === 0) {
+                container.innerHTML = '<li class="request-item">No issues reported</li>';
+                return;
+            }
+
+            container.innerHTML = myIssues.map(issue => `
+                <li class="request-item">
+                    <h4>${issue.type} 
+                        <span class="badge ${issue.status === 'resolved' ? 'badge-approved' : 'badge-pending'}">
+                            ${issue.status === 'resolved' ? 'Resolved' : 'Pending'}
+                        </span>
+                    </h4>
+                    <p><strong>Room:</strong> ${issue.room}</p>
+                    <p><strong>Priority:</strong> ${issue.priority}</p>
+                    <p>${issue.description}</p>
+                    <p class="timestamp">Reported: ${formatDate(issue.timestamp)}</p>
+                    ${issue.status === 'resolved' ? 
+                        `<p style="color: #4ade80;">✓ Resolved: ${formatDate(issue.resolvedAt)}</p>` : ''}
+                </li>
+            `).join('');
+        }
+
+        function submitHostelIssue() {
+            const type = document.getElementById('issueType').value;
+            const description = document.getElementById('issueDescription').value;
+            const priority = document.getElementById('issuePriority').value;
+
+            if (!description) {
+                showToast('Please describe the issue', 'error', 'Error');
+                return;
+            }
+
+            db.addHostelIssue({
+                studentRegNo: currentUser.regNo,
+                studentName: currentUser.name,
+                room: currentUser.room,
+                type: type,
+                description: description,
+                priority: priority
+            });
+
+            showToast('Issue submitted to hostel management!', 'success', 'Success');
+            document.getElementById('issueDescription').value = '';
+            loadStudentHostelIssues();
+        }
+
+        function loadStudentAttendanceHistory() {
+            const data = db.getData();
+            const myAttendance = data.attendance.filter(a => a.studentRegNo === currentUser.regNo);
+            const container = document.getElementById('attendanceHistoryContainer');
+
+            if (myAttendance.length === 0) {
+                container.innerHTML = '<p style="color: #b0b0b0;">No attendance records yet</p>';
+                return;
+            }
+
+            container.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Subject</th>
+                            <th>Slot</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${myAttendance.slice(-10).reverse().map(a => `
+                            <tr>
+                                <td>${formatDateOnly(a.timestamp)}</td>
+                                <td>${a.subject}</td>
+                                <td>${a.slot}</td>
+                                <td><span class="attendance-status status-present">Present</span></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function markAttendance() {
+            const code = document.getElementById('qrCodeInput').value.toUpperCase();
+
+            if (!code || code.length !== 5) {
+                showToast('Please enter a 5-character code', 'error', 'Error');
+                return;
+            }
+
+            const data = db.getData();
+            if (!data.activeQR || data.activeQR.code !== code) {
+                showToast('Invalid or expired code', 'error', 'Error');
+                return;
+            }
+
+            const alreadyMarked = data.attendance.find(a =>
+                a.studentRegNo === currentUser.regNo &&
+                a.subject === data.activeQR.subject &&
+                a.slot === data.activeQR.slot &&
+                formatDateOnly(a.timestamp) === formatDateOnly(new Date().toISOString())
+            );
+
+            if (alreadyMarked) {
+                showToast('Attendance already marked for this session', 'warning', 'Already Marked');
+                return;
+            }
+
+            db.addAttendance({
+                studentRegNo: currentUser.regNo,
+                studentName: currentUser.name,
+                subject: data.activeQR.subject,
+                slot: data.activeQR.slot,
+                facultyId: data.activeQR.facultyId
+            });
+
+            showToast('Attendance marked successfully!', 'success', 'Success');
+            document.getElementById('qrCodeInput').value = '';
+            loadStudentAttendanceHistory();
+        }
+
+        // ========== FACULTY PORTAL ==========
+
+        function facultyLogin() {
+            const facultyId = document.getElementById('facultySelect').value;
+            const password = document.getElementById('facultyPassword').value;
+
+            if (!facultyId) {
+                showToast('Please select faculty', 'error', 'Error');
+                return;
+            }
+
+            const data = db.getData();
+            const faculty = data.faculty.find(f => f.id === facultyId && f.password === password);
+
+            if (faculty) {
+                currentUser = faculty;
+                document.getElementById('facultyLogin').style.display = 'none';
+                document.getElementById('facultyDashboard').style.display = 'block';
+                document.getElementById('facultyNameHeader').textContent = faculty.name;
+                showToast('Welcome ' + faculty.name + '!', 'success', 'Login Successful');
+                loadFacultyDashboard();
+                setupFacultyListeners();
+            } else {
+                showToast('Invalid credentials', 'error', 'Login Failed');
+            }
+        }
+
+        function loadFacultyDashboard() {
+            const data = db.getData();
+
+            const todayAttendance = data.attendance.filter(a => {
+                return a.facultyId === currentUser.id &&
+                       formatDateOnly(a.timestamp) === formatDateOnly(new Date().toISOString());
+            });
+            document.getElementById('facultyTodayAttendance').textContent = todayAttendance.length;
+
+            const myAssignments = data.assignments.filter(a => a.facultyId === currentUser.id);
+            const pendingSubmissions = data.submittedAssignments.filter(s => {
+                return myAssignments.find(a => a.id === s.assignmentId) && s.status === 'submitted';
+            });
+            document.getElementById('facultyPendingAssignments').textContent = pendingSubmissions.length;
+
+            document.getElementById('facultyActiveQR').textContent = 
+                data.activeQR && data.activeQR.facultyId === currentUser.id ? 'Active' : 'Inactive';
+
+            document.getElementById('facultyMyStudents').textContent = data.students.length;
+
+            loadFacultyProfile();
+            loadFacultyAssignments();
+            loadFacultySubmissions();
+        }
+
+        function loadFacultyProfile() {
+            const container = document.getElementById('facultyProfileInfo');
+            container.innerHTML = `
+                <div class="info-box">
+                    <h4>Faculty Information</h4>
+                    <div class="info-row">
+                        <span class="info-label">Name:</span>
+                        <span class="info-value">${currentUser.name}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">ID:</span>
+                        <span class="info-value">${currentUser.id}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Email:</span>
+                        <span class="info-value">${currentUser.email}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Subject:</span>
+                        <span class="info-value">${currentUser.subject}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function setupFacultyListeners() {
+            window.addEventListener('campusDBUpdate', () => {
+                if (currentRole === 'faculty' && currentUser) {
+                    loadFacultyDashboard();
+                }
+            });
+        }
+
+        function generateQR() {
+            const subject = document.getElementById('qrSubject').value;
+            const slot = document.getElementById('qrSlot').value;
+
+            const code = generate5CharCode();
+
+            db.setActiveQR({
+                code: code,
+                subject: subject,
+                slot: slot,
+                facultyId: currentUser.id,
+                facultyName: currentUser.name,
+                timestamp: new Date().toISOString()
+            });
+
+            document.getElementById('currentSubject').textContent = subject;
+            document.getElementById('currentSlot').textContent = slot;
+            document.getElementById('qrCodeDisplay').textContent = code;
+            document.getElementById('qrDisplay').style.display = 'block';
+
+            startQRTimer(subject, slot);
+            showToast('5-character code generated! Students can now mark attendance.', 'success', 'Code Active');
+            loadAttendanceList();
+        }
+
+        function startQRTimer(subject, slot) {
+            let seconds = 10;
+
+            if (qrTimer) clearInterval(qrTimer);
+
+            qrTimer = setInterval(() => {
+                seconds--;
+                document.getElementById('qrTimer').textContent = seconds;
+
+                if (seconds <= 0) {
+                    const newCode = generate5CharCode();
+                    db.setActiveQR({
+                        code: newCode,
+                        subject: subject,
+                        slot: slot,
+                        facultyId: currentUser.id,
+                        facultyName: currentUser.name,
+                        timestamp: new Date().toISOString()
+                    });
+
+                    document.getElementById('qrCodeDisplay').textContent = newCode;
+                    seconds = 10;
+
+                    loadAttendanceList();
+                }
+            }, 1000);
+        }
+
+        function loadAttendanceList() {
+            const data = db.getData();
+            const container = document.getElementById('attendanceStudentsList');
+
+            if (!data.activeQR || data.activeQR.facultyId !== currentUser.id) {
+                container.innerHTML = '';
+                return;
+            }
+
+            const todayAttendance = data.attendance.filter(a =>
+                a.subject === data.activeQR.subject &&
+                a.slot === data.activeQR.slot &&
+                a.facultyId === currentUser.id &&
+                formatDateOnly(a.timestamp) === formatDateOnly(new Date().toISOString())
+            );
+
+            document.getElementById('presentCount').textContent = todayAttendance.length;
+
+            if (todayAttendance.length === 0) {
+                container.innerHTML = '<p style="margin-top: 1rem; color: #b0b0b0;">No students marked yet</p>';
+            } else {
+                container.innerHTML = '<ul style="margin-top: 1rem; list-style: none;">' +
+                    todayAttendance.map(a => `
+                        <li style="padding: 0.5rem; background: rgba(74, 222, 128, 0.1); margin-bottom: 0.5rem; border-radius: 4px; border: 1px solid rgba(74, 222, 128, 0.3);">
+                            ✓ ${a.studentName} (${a.studentRegNo})
+                            <span style="float: right; font-size: 0.85rem; color: #b0b0b0;">
+                                ${new Date(a.timestamp).toLocaleTimeString()}
+                            </span>
+                        </li>
+                    `).join('') +
+                    '</ul>';
+            }
+        }
+
+        function createAssignment() {
+            const subject = document.getElementById('assignSubject').value;
+            const title = document.getElementById('assignTitle').value;
+            const description = document.getElementById('assignDescription').value;
+            const dueDate = document.getElementById('assignDueDate').value;
+
+            if (!title || !description || !dueDate) {
+                showToast('Please fill all fields', 'error', 'Error');
+                return;
+            }
+
+            db.addAssignment({
+                subject: subject,
+                title: title,
+                description: description,
+                dueDate: dueDate,
+                facultyId: currentUser.id,
+                facultyName: currentUser.name
+            });
+
+            showToast('Assignment created! All students will be notified.', 'success', 'Success');
+            document.getElementById('assignTitle').value = '';
+            document.getElementById('assignDescription').value = '';
+            document.getElementById('assignDueDate').value = '';
+            loadFacultyAssignments();
+        }
+
+        function loadFacultyAssignments() {
+            const data = db.getData();
+            const myAssignments = data.assignments.filter(a => a.facultyId === currentUser.id);
+            const container = document.getElementById('facultyActiveAssignmentsList');
+
+            if (myAssignments.length === 0) {
+                container.innerHTML = '<p style="color: #b0b0b0;">No assignments created yet</p>';
+                return;
+            }
+
+            container.innerHTML = myAssignments.map(a => {
+                const submissions = data.submittedAssignments.filter(s => s.assignmentId === a.id);
+                return `
+                    <div style="background: #16213e; padding: 1rem; margin-bottom: 1rem; border-radius: 6px; border-left: 4px solid #e94560;">
+                        <h4 style="margin-bottom: 0.5rem; color: #e0e0e0;">${a.title}</h4>
+                        <p><strong>Subject:</strong> ${a.subject}</p>
+                        <p><strong>Due:</strong> ${formatDateOnly(a.dueDate)}</p>
+                        <p><strong>Submissions:</strong> ${submissions.length}</p>
+                        <p class="timestamp">Created: ${formatDate(a.timestamp)}</p>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function loadFacultySubmissions() {
+            const data = db.getData();
+            const myAssignments = data.assignments.filter(a => a.facultyId === currentUser.id);
+            const allSubmissions = data.submittedAssignments.filter(s =>
+                myAssignments.find(a => a.id === s.assignmentId)
+            );
+            const container = document.getElementById('facultySubmissionsList');
+
+            if (allSubmissions.length === 0) {
+                container.innerHTML = '<p style="color: #b0b0b0;">No submissions yet</p>';
+                return;
+            }
+
+            container.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Assignment</th>
+                            <th>File</th>
+                            <th>Submitted</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${allSubmissions.map(s => {
+                            const assignment = myAssignments.find(a => a.id === s.assignmentId);
+                            return `
+                                <tr>
+                                    <td>${s.studentName}<br><small style="color: #b0b0b0;">${s.studentRegNo}</small></td>
+                                    <td>${assignment ? assignment.title : 'Unknown'}</td>
+                                    <td>${s.fileName}</td>
+                                    <td>${formatDate(s.timestamp)}</td>
+                                    <td>
+                                        <span class="badge ${s.status === 'approved' ? 'badge-approved' : 'badge-pending'}">
+                                            ${s.status === 'approved' ? 'Approved' : 'Pending'}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        ${s.status === 'submitted' ?
+                                            `<button class="btn btn-success btn-sm" onclick="approveSubmission('${s.id}')">
+                                                ✓ Approve
+                                            </button>` :
+                                            '<span style="color: #4ade80;">✓ Approved</span>'}
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            updateNotificationBadge('facultySubmissionsTab',
+                allSubmissions.filter(s => s.status === 'submitted').length
+            );
+        }
+
+        function approveSubmission(submissionId) {
+            db.updateSubmission(submissionId, {
+                status: 'approved',
+                approvedAt: new Date().toISOString()
+            });
+
+            showToast('Assignment approved!', 'success', 'Success');
+            loadFacultySubmissions();
+        }
+
+        // ========== PROCTOR PORTAL ==========
+
+        function proctorLogin() {
+            const proctorId = document.getElementById('proctorSelect').value;
+            const password = document.getElementById('proctorPassword').value;
+
+            if (!proctorId) {
+                showToast('Please select proctor', 'error', 'Error');
+                return;
+            }
+
+            const data = db.getData();
+            const proctor = data.proctors.find(p => p.id === proctorId && p.password === password);
+
+            if (proctor) {
+                currentUser = proctor;
+                document.getElementById('proctorLogin').style.display = 'none';
+                document.getElementById('proctorDashboard').style.display = 'block';
+                document.getElementById('proctorNameHeader').textContent = proctor.name;
+                showToast('Welcome ' + proctor.name + '!', 'success', 'Login Successful');
+                loadProctorDashboard();
+                setupProctorListeners();
+                populateDropdowns();
+            } else {
+                showToast('Invalid credentials', 'error', 'Login Failed');
+            }
+        }
+
+        function loadProctorDashboard() {
+            const data = db.getData();
+
+            const myStudents = data.students.filter(s => s.proctorId === currentUser.id);
+            document.getElementById('proctorStudentsCount').textContent = myStudents.length;
+
+            const myLeaves = data.leaves.filter(l => l.proctorId === currentUser.id);
+            const pending = myLeaves.filter(l => !l.proctorStatus);
+            const approved = myLeaves.filter(l => l.proctorStatus === 'approved');
+            const rejected = myLeaves.filter(l => l.proctorStatus === 'rejected');
+
+            document.getElementById('proctorPendingLeaves').textContent = pending.length;
+            document.getElementById('proctorApprovedLeaves').textContent = approved.length;
+            document.getElementById('proctorRejectedLeaves').textContent = rejected.length;
+
+            loadProctorProfile();
+            loadProctorLeaves();
+            loadProctorStudents();
+        }
+
+        function loadProctorProfile() {
+            const data = db.getData();
+            const myStudents = data.students.filter(s => s.proctorId === currentUser.id);
+            const container = document.getElementById('proctorProfileInfo');
+
+            container.innerHTML = `
+                <div class="info-box">
+                    <h4>Proctor Information</h4>
+                    <div class="info-row">
+                        <span class="info-label">Name:</span>
+                        <span class="info-value">${currentUser.name}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">ID:</span>
+                        <span class="info-value">${currentUser.id}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Email:</span>
+                        <span class="info-value">${currentUser.email}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Assigned Students:</span>
+                        <span class="info-value">${myStudents.length}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function setupProctorListeners() {
+            window.addEventListener('campusDBUpdate', () => {
+                if (currentRole === 'proctor' && currentUser) {
+                    loadProctorDashboard();
+                }
+            });
+        }
+
+        function loadProctorLeaves() {
+            const data = db.getData();
+            const myLeaves = data.leaves.filter(l => l.proctorId === currentUser.id);
+
+            const pending = myLeaves.filter(l => !l.proctorStatus);
+            const pendingContainer = document.getElementById('proctorPendingLeavesList');
+
+            if (pending.length === 0) {
+                pendingContainer.innerHTML = '<li class="request-item">No pending leave requests</li>';
+            } else {
+                pendingContainer.innerHTML = pending.map(leave => `
+                    <li class="request-item new">
+                        <h4>${leave.type} - ${leave.studentName} (${leave.studentRegNo})</h4>
+                        <p><strong>Duration:</strong> ${formatDateOnly(leave.fromDate)} to ${formatDateOnly(leave.toDate)}</p>
+                        <p><strong>Reason:</strong> ${leave.reason}</p>
+                        <p class="timestamp">Applied: ${formatDate(leave.timestamp)}</p>
+                        <div class="request-actions">
+                            <button class="btn btn-success" onclick="approveLeave('${leave.id}')">✓ Approve</button>
+                            <button class="btn btn-danger" onclick="rejectLeave('${leave.id}')">✗ Reject</button>
+                        </div>
+                    </li>
+                `).join('');
+            }
+
+            const processed = myLeaves.filter(l => l.proctorStatus);
+            const historyContainer = document.getElementById('proctorLeaveHistoryList');
+
+            if (processed.length === 0) {
+                historyContainer.innerHTML = '<p style="color: #b0b0b0;">No leave history yet</p>';
+            } else {
+                historyContainer.innerHTML = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Type</th>
+                                <th>Duration</th>
+                                <th>Your Decision</th>
+                                <th>Parent Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${processed.map(leave => `
+                                <tr>
+                                    <td>${leave.studentName}</td>
+                                    <td>${leave.type}</td>
+                                    <td>${formatDateOnly(leave.fromDate)} - ${formatDateOnly(leave.toDate)}</td>
+                                    <td>
+                                        <span class="badge ${leave.proctorStatus === 'approved' ? 'badge-approved' : 'badge-rejected'}">
+                                            ${leave.proctorStatus}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        ${leave.parentStatus ?
+                                            `<span class="badge ${leave.parentStatus === 'approved' ? 'badge-approved' : 'badge-rejected'}">
+                                                ${leave.parentStatus}
+                                            </span>` :
+                                            leave.proctorStatus === 'approved' ? 
+                                                '<span class="badge badge-pending">Pending</span>' : '-'}
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            updateNotificationBadge('proctorLeavesTab', pending.length);
+        }
+
+        function approveLeave(leaveId) {
+            db.updateLeave(leaveId, {
+                proctorStatus: 'approved',
+                proctorApprovedAt: new Date().toISOString()
+            });
+
+            showToast('Leave approved! Parent will be notified for final approval.', 'success', 'Leave Approved');
+            loadProctorLeaves();
+        }
+
+        function rejectLeave(leaveId) {
+            const reason = prompt('Enter reason for rejection:');
+            if (reason) {
+                db.updateLeave(leaveId, {
+                    proctorStatus: 'rejected',
+                    rejectionReason: reason,
+                    proctorRejectedAt: new Date().toISOString()
+                });
+
+                showToast('Leave rejected. Student will be notified.', 'success', 'Leave Rejected');
+                loadProctorLeaves();
+            }
+        }
+
+        function loadProctorStudents() {
+            const data = db.getData();
+            const myStudents = data.students.filter(s => s.proctorId === currentUser.id);
+            const container = document.getElementById('proctorStudentsList');
+
+            if (myStudents.length === 0) {
+                container.innerHTML = '<p style="color: #b0b0b0;">No students assigned</p>';
+                return;
+            }
+
+            container.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Reg. No.</th>
+                            <th>Room</th>
+                            <th>Email</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${myStudents.map(s => `
+                            <tr>
+                                <td>${s.name}</td>
+                                <td>${s.regNo}</td>
+                                <td>${s.room}</td>
+                                <td>${s.email}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function resetStudentPassword() {
+            const studentRegNo = document.getElementById('proctorStudentSelect').value;
+            const newPassword = document.getElementById('proctorNewStudentPassword').value;
+
+            if (!studentRegNo || !newPassword) {
+                showToast('Please fill all fields', 'error', 'Error');
+                return;
+            }
+
+            db.updatePassword('student', studentRegNo, newPassword);
+            showToast('Student password reset successfully!', 'success', 'Success');
+            document.getElementById('proctorNewStudentPassword').value = '';
+        }
+
+        // ========== PARENT PORTAL ==========
+
+        function parentLogin() {
+            const parentId = document.getElementById('parentSelect').value;
+            const password = document.getElementById('parentPassword').value;
+
+            if (!parentId) {
+                showToast('Please select parent account', 'error', 'Error');
+                return;
+            }
+
+            const data = db.getData();
+            const parent = data.parents.find(p => p.id === parentId && p.password === password);
+
+            if (parent) {
+                currentUser = parent;
+                document.getElementById('parentLogin').style.display = 'none';
+                document.getElementById('parentDashboard').style.display = 'block';
+                document.getElementById('parentStudentHeader').textContent = "Child: " + parent.studentName;
+                showToast('Welcome! Viewing ' + parent.studentName + "'s progress", 'success', 'Login Successful');
+                loadParentDashboard();
+                setupParentListeners();
+            } else {
+                showToast('Invalid credentials', 'error', 'Login Failed');
+            }
+        }
+
+        function loadParentDashboard() {
+            const data = db.getData();
+            const studentRegNo = currentUser.studentRegNo;
+
+            const studentAttendance = data.attendance.filter(a => a.studentRegNo === studentRegNo);
+            const totalClasses = data.attendance.length > 0 ? Math.max(...data.attendance.map(a => {
+                return data.attendance.filter(att => att.subject === a.subject && att.slot === a.slot).length;
+            })) : 0;
+            const attendancePercent = totalClasses > 0 ? Math.round((studentAttendance.length / totalClasses) * 100) : 0;
+            document.getElementById('parentAttendancePercent').textContent = attendancePercent + '%';
+
+            const totalAssignments = data.assignments.length;
+            const submissions = data.submittedAssignments.filter(s => s.studentRegNo === studentRegNo);
+            document.getElementById('parentAssignmentsCount').textContent = `${submissions.length}/${totalAssignments}`;
+
+            const studentLeaves = data.leaves.filter(l => l.studentRegNo === studentRegNo);
+            const pendingParent = studentLeaves.filter(l => l.proctorStatus === 'approved' && !l.parentStatus);
+            document.getElementById('parentPendingLeaves').textContent = pendingParent.length;
+
+            const issues = data.hostelIssues.filter(i => i.studentRegNo === studentRegNo);
+            const activeIssues = issues.filter(i => i.status === 'pending');
+            document.getElementById('parentHostelIssues').textContent = activeIssues.length;
+
+            loadParentProfile();
+            loadParentRecentActivities();
+            loadParentLeaves();
+            loadParentAssignments();
+            loadParentHostelIssues();
+        }
+
+        function loadParentProfile() {
+            const data = db.getData();
+            const student = data.students.find(s => s.regNo === currentUser.studentRegNo);
+            const proctor = data.proctors.find(p => p.id === student?.proctorId);
+            const container = document.getElementById('parentProfileInfo');
+
+            container.innerHTML = `
+                <div class="info-box">
+                    <h4>My Information</h4>
+                    <div class="info-row">
+                        <span class="info-label">Email:</span>
+                        <span class="info-value">${currentUser.email}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Mobile:</span>
+                        <span class="info-value">${currentUser.mobile}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Address:</span>
+                        <span class="info-value">${currentUser.address}</span>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <h4>Child Information</h4>
+                    <div class="info-row">
+                        <span class="info-label">Name:</span>
+                        <span class="info-value">${currentUser.studentName}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Reg No:</span>
+                        <span class="info-value">${currentUser.studentRegNo}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Room:</span>
+                        <span class="info-value">${student ? student.room : '-'}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Proctor:</span>
+                        <span class="info-value">${proctor ? proctor.name : 'Not Assigned'}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function setupParentListeners() {
+            window.addEventListener('campusDBUpdate', () => {
+                if (currentRole === 'parent' && currentUser) {
+                    loadParentDashboard();
+                }
+            });
+        }
+
+        function loadParentRecentActivities() {
+            const data = db.getData();
+            const studentRegNo = currentUser.studentRegNo;
+            const container = document.getElementById('parentRecentActivities');
+
+            const activities = [];
+
+            const recentAttendance = data.attendance
+                .filter(a => a.studentRegNo === studentRegNo)
+                .slice(-5)
+                .reverse();
+
+            recentAttendance.forEach(a => {
+                activities.push({
+                    timestamp: a.timestamp,
+                    text: `✓ Attended ${a.subject} class (${a.slot})`
+                });
+            });
+
+            const recentSubmissions = data.submittedAssignments
+                .filter(s => s.studentRegNo === studentRegNo)
+                .slice(-3)
+                .reverse();
+
+            recentSubmissions.forEach(s => {
+                activities.push({
+                    timestamp: s.timestamp,
+                    text: `📝 Submitted: ${s.assignmentTitle}`
+                });
+            });
+
+            activities.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            if (activities.length === 0) {
+                container.innerHTML = '<p style="color: #b0b0b0;">No recent activities</p>';
+            } else {
+                container.innerHTML = '<ul style="list-style: none;">' +
+                    activities.slice(0, 10).map(a => `
+                        <li style="padding: 0.5rem; margin-bottom: 0.5rem; background: #16213e; border-radius: 4px;">
+                            ${a.text}
+                            <p class="timestamp">${formatDate(a.timestamp)}</p>
+                        </li>
+                    `).join('') +
+                    '</ul>';
+            }
+        }
+
+        function loadParentLeaves() {
+            const data = db.getData();
+            const studentLeaves = data.leaves.filter(l => l.studentRegNo === currentUser.studentRegNo);
+
+            const pending = studentLeaves.filter(l => l.proctorStatus === 'approved' && !l.parentStatus);
+            const pendingContainer = document.getElementById('parentPendingLeavesList');
+
+            if (pending.length === 0) {
+                pendingContainer.innerHTML = '<li class="request-item">No pending approvals</li>';
+            } else {
+                pendingContainer.innerHTML = pending.map(leave => `
+                    <li class="request-item new">
+                        <h4>${leave.type} <span class="badge badge-new">Action Required</span></h4>
+                        <p><strong>Duration:</strong> ${formatDateOnly(leave.fromDate)} to ${formatDateOnly(leave.toDate)}</p>
+                        <p><strong>Reason:</strong> ${leave.reason}</p>
+                        <p><strong>Proctor:</strong> ✓ Approved by ${leave.proctorName}</p>
+                        <p class="timestamp">Applied: ${formatDate(leave.timestamp)}</p>
+                        <div class="request-actions">
+                            <button class="btn btn-success" onclick="parentApproveLeave('${leave.id}')">✓ Approve</button>
+                            <button class="btn btn-danger" onclick="parentRejectLeave('${leave.id}')">✗ Reject</button>
+                        </div>
+                    </li>
+                `).join('');
+            }
+
+            const processed = studentLeaves.filter(l => l.parentStatus);
+            const historyContainer = document.getElementById('parentLeaveHistoryList');
+
+            if (processed.length === 0) {
+                historyContainer.innerHTML = '<p style="color: #b0b0b0;">No leave history yet</p>';
+            } else {
+                historyContainer.innerHTML = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Duration</th>
+                                <th>Proctor</th>
+                                <th>Parent</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${processed.map(leave => `
+                                <tr>
+                                    <td>${leave.type}</td>
+                                    <td>${formatDateOnly(leave.fromDate)} - ${formatDateOnly(leave.toDate)}</td>
+                                    <td><span class="badge badge-approved">Approved</span></td>
+                                    <td>
+                                        <span class="badge ${leave.parentStatus === 'approved' ? 'badge-approved' : 'badge-rejected'}">
+                                            ${leave.parentStatus}
+                                        </span>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            updateNotificationBadge('parentLeavesTab', pending.length);
+        }
+
+        function parentApproveLeave(leaveId) {
+            if (confirm('Approve this leave request?')) {
+                db.updateLeave(leaveId, {
+                    parentStatus: 'approved',
+                    parentApprovedAt: new Date().toISOString()
+                });
+
+                showToast('Leave fully approved! Student can now proceed.', 'success', 'Leave Approved');
+                loadParentLeaves();
+            }
+        }
+
+        function parentRejectLeave(leaveId) {
+            const reason = prompt('Enter reason for rejection:');
+            if (reason) {
+                db.updateLeave(leaveId, {
+                    parentStatus: 'rejected',
+                    parentRejectionReason: reason,
+                    parentRejectedAt: new Date().toISOString()
+                });
+
+                showToast('Leave rejected. Student will be notified.', 'success', 'Leave Rejected');
+                loadParentLeaves();
+            }
+        }
+
+        function loadParentAssignments() {
+            const data = db.getData();
+            const studentRegNo = currentUser.studentRegNo;
+            const submissions = data.submittedAssignments.filter(s => s.studentRegNo === studentRegNo);
+            const container = document.getElementById('parentAssignmentsList');
+
+            if (data.assignments.length === 0) {
+                container.innerHTML = '<p style="color: #b0b0b0;">No assignments available</p>';
+                return;
+            }
+
+            container.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Subject</th>
+                            <th>Title</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.assignments.map(a => {
+                            const sub = submissions.find(s => s.assignmentId === a.id);
+                            return `
+                                <tr>
+                                    <td>${a.subject}</td>
+                                    <td>${a.title}</td>
+                                    <td>${formatDateOnly(a.dueDate)}</td>
+                                    <td>
+                                        ${sub ?
+                                            `<span class="badge ${sub.status === 'approved' ? 'badge-approved' : 'badge-pending'}">
+                                                ${sub.status === 'approved' ? 'Approved' : 'Submitted'}
+                                            </span>` :
+                                            '<span class="badge badge-pending">Not Submitted</span>'}
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function loadParentHostelIssues() {
+            const data = db.getData();
+            const studentRegNo = currentUser.studentRegNo;
+            const issues = data.hostelIssues.filter(i => i.studentRegNo === studentRegNo);
+            const container = document.getElementById('parentHostelIssuesList');
+
+            if (issues.length === 0) {
+                container.innerHTML = '<p style="color: #b0b0b0;">No hostel issues reported</p>';
+                return;
+            }
+
+            container.innerHTML = `
+                <ul class="request-list">
+                    ${issues.map(issue => `
+                        <li class="request-item">
+                            <h4>${issue.type}
+                                <span class="badge ${issue.status === 'resolved' ? 'badge-approved' : 'badge-pending'}">
+                                    ${issue.status === 'resolved' ? 'Resolved' : 'Pending'}
+                                </span>
+                            </h4>
+                            <p><strong>Room:</strong> ${issue.room}</p>
+                            <p><strong>Priority:</strong> ${issue.priority}</p>
+                            <p>${issue.description}</p>
+                            <p class="timestamp">Reported: ${formatDate(issue.timestamp)}</p>
+                            ${issue.status === 'resolved' ?
+                                `<p style="color: #4ade80;">✓ Resolved: ${formatDate(issue.resolvedAt)}</p>` : ''}
+                        </li>
+                    `).join('')}
+                </ul>
+            `;
+        }
+
+        // ========== HR PORTAL ==========
+
+        function hrLogin() {
+            const email = document.getElementById('hrEmail').value;
+            const password = document.getElementById('hrPassword').value;
+
+            const data = db.getData();
+            const hr = data.hr.find(h => h.email === email && h.password === password);
+
+            if (hr) {
+                currentUser = hr;
+                document.getElementById('hrLogin').style.display = 'none';
+                document.getElementById('hrDashboard').style.display = 'block';
+                showToast('Welcome!', 'success', 'Login Successful');
+                loadHRDashboard();
+                setupHRListeners();
+            } else {
+                showToast('Invalid credentials', 'error', 'Login Failed');
+            }
+        }
+
+        function loadHRDashboard() {
+            const data = db.getData();
+
+            document.getElementById('hrTotalStudents').textContent = data.students.length;
+
+            const pendingIssues = data.hostelIssues.filter(i => i.status === 'pending');
+            const resolvedIssues = data.hostelIssues.filter(i => i.status === 'resolved');
+
+            document.getElementById('hrPendingIssues').textContent = pendingIssues.length;
+            document.getElementById('hrResolvedIssues').textContent = resolvedIssues.length;
+
+            loadHRProfile();
+            loadHRIssues();
+            loadHRStudents();
+        }
+
+        function loadHRProfile() {
+            const container = document.getElementById('hrProfileInfo');
+            container.innerHTML = `
+                <div class="info-box">
+                    <h4>Hostel Representative Information</h4>
+                    <div class="info-row">
+                        <span class="info-label">Name:</span>
+                        <span class="info-value">${currentUser.name}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Email:</span>
+                        <span class="info-value">${currentUser.email}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function setupHRListeners() {
+            window.addEventListener('campusDBUpdate', () => {
+                if (currentRole === 'hr' && currentUser) {
+                    loadHRDashboard();
+                }
+            });
+        }
+
+        function loadHRIssues() {
+            const data = db.getData();
+            const issues = data.hostelIssues;
+
+            const pending = issues.filter(i => i.status === 'pending');
+            const pendingContainer = document.getElementById('hrPendingIssuesList');
+
+            if (pending.length === 0) {
+                pendingContainer.innerHTML = '<li class="request-item">No pending issues</li>';
+            } else {
+                pendingContainer.innerHTML = pending.map(issue => `
+                    <li class="request-item new">
+                        <h4>${issue.type} - Room ${issue.room}
+                            <span class="badge ${issue.priority === 'Urgent' || issue.priority === 'High' ? 'badge-rejected' : 'badge-pending'}">
+                                ${issue.priority} Priority
+                            </span>
+                        </h4>
+                        <p><strong>Student:</strong> ${issue.studentName} (${issue.studentRegNo})</p>
+                        <p>${issue.description}</p>
+                        <p class="timestamp">Reported: ${formatDate(issue.timestamp)}</p>
+                        <div class="request-actions">
+                            <button class="btn btn-success" onclick="resolveIssue('${issue.id}')">
+                                ✓ Mark Resolved
+                            </button>
+                        </div>
+                    </li>
+                `).join('');
+            }
+
+            const resolved = issues.filter(i => i.status === 'resolved');
+            const resolvedContainer = document.getElementById('hrResolvedIssuesList');
+
+            if (resolved.length === 0) {
+                resolvedContainer.innerHTML = '<p style="color: #b0b0b0;">No resolved issues yet</p>';
+            } else {
+                resolvedContainer.innerHTML = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Room</th>
+                                <th>Student</th>
+                                <th>Reported</th>
+                                <th>Resolved</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${resolved.slice(-10).reverse().map(issue => `
+                                <tr>
+                                    <td>${issue.type}</td>
+                                    <td>${issue.room}</td>
+                                    <td>${issue.studentName}</td>
+                                    <td>${formatDate(issue.timestamp)}</td>
+                                    <td>${formatDate(issue.resolvedAt)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            updateNotificationBadge('hrIssuesTab', pending.length);
+        }
+
+        function resolveIssue(issueId) {
+            if (confirm('Mark this issue as resolved?')) {
+                db.updateHostelIssue(issueId, {
+                    status: 'resolved',
+                    resolvedAt: new Date().toISOString()
+                });
+
+                showToast('Issue resolved! Student and parent will be notified.', 'success', 'Issue Resolved');
+                loadHRIssues();
+            }
+        }
+
+        function loadHRStudents() {
+            const data = db.getData();
+            const container = document.getElementById('hrStudentDirectory');
+
+            container.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Reg. No.</th>
+                            <th>Room</th>
+                            <th>Proctor</th>
+                            <th>Email</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.students.map(s => {
+                            const proctor = data.proctors.find(p => p.id === s.proctorId);
+                            return `
+                                <tr>
+                                    <td>${s.name}</td>
+                                    <td>${s.regNo}</td>
+                                    <td>${s.room}</td>
+                                    <td>${proctor ? proctor.name : '-'}</td>
+                                    <td>${s.email}</td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        // ========== INITIALIZE ==========
+
+        document.addEventListener('DOMContentLoaded', function() {
+            populateDropdowns();
+
+            document.body.style.opacity = '0';
+            setTimeout(() => {
+                document.body.style.transition = 'opacity 0.5s';
+                document.body.style.opacity = '1';
+            }, 100);
+
+            console.log('✅ Real-time Campus Management System Active (Dark Mode)');
+            console.log('📊 Database initialized with sample data');
+            console.log('🔐 Admin: admin/admin123');
+        });
+    </script>
+</body>
+</html>
+
+<!--fix admin portal admin where he can change credential of otherportal and assign facullty to there subject and slots , can assign student to there proctor , admin can add new student ,proctor,faculty,parants , and can generate there credential .-->
